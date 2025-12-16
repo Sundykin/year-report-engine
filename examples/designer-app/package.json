@@ -1,0 +1,22 @@
+{
+  "name": "example-designer-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@year-report/core": "workspace:*",
+    "@year-report/designer": "workspace:*",
+    "@year-report/renderer-vue3": "workspace:*",
+    "vue": "^3.3.11"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8",
+    "vue-tsc": "^1.8.27"
+  }
+}

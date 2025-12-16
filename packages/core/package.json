@@ -1,0 +1,30 @@
+{
+  "name": "@year-report/core",
+  "version": "1.0.0",
+  "description": "Year Report Engine - Core Types and Constants",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "h5",
+    "year-report",
+    "schema"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/animejs": "^3.1.13",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "animejs": "^4.2.2"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "year-report-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HTML5年度报告引擎 - 设计器与渲染器",
+  "scripts": {
+    "dev": "pnpm --filter example-designer-app dev",
+    "build:core": "pnpm --filter @year-report/core build",
+    "build:renderer-react": "pnpm --filter @year-report/renderer-react build",
+    "build:renderer-vue3": "pnpm --filter @year-report/renderer-vue3 build",
+    "build:renderer-vue2": "pnpm --filter @year-report/renderer-vue2 build",
+    "build:designer": "pnpm --filter @year-report/designer build",
+    "build:all": "pnpm build:core && pnpm build:renderer-react && pnpm build:renderer-vue3 && pnpm build:renderer-vue2 && pnpm build:designer"
+  },
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

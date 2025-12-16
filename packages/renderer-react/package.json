@@ -1,0 +1,38 @@
+{
+  "name": "@year-report/renderer-react",
+  "version": "1.0.0",
+  "description": "Year Report Engine - React Renderer",
+  "main": "./dist/index.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "dependencies": {
+    "@year-report/core": "workspace:*",
+    "animate.css": "^4.1.1",
+    "echarts": "^5.4.3",
+    "echarts-for-react": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite-plugin-dts": "^3.7.2"
+  }
+}

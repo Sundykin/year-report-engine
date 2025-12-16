@@ -1,0 +1,34 @@
+{
+  "name": "@year-report/renderer-vue2",
+  "version": "1.0.0",
+  "description": "Year Report Engine - Vue2 Renderer",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "peerDependencies": {
+    "vue": "^2.7.0"
+  },
+  "dependencies": {
+    "@wangeditor/editor": "^5.1.23",
+    "@year-report/core": "workspace:*",
+    "animate.css": "^4.1.1",
+    "echarts": "^5.4.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue2": "^2.3.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8",
+    "vue": "^2.7.16",
+    "vue-template-compiler": "^2.7.16",
+    "vue-tsc": "^1.8.27"
+  }
+}
