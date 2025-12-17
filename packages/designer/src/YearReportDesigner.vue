@@ -149,6 +149,7 @@
           @delete-group="handleDeleteGroup"
           @ungroup="handleLayerUngroup"
           @reorder="handleLayerReorder"
+          @rename="handleLayerRename"
         />
       </template>
     </PropertiesPanel>
@@ -443,6 +444,10 @@ const handleToggleLockById = (id: string) => {
   if (el) updateElement(id, { locked: !el.locked })
 }
 
+const handleLayerRename = (id: string, name: string) => {
+  updateElement(id, { name })
+}
+
 const handleLayerReorder = (fromIdx: number, toIdx: number, items: { id: string; isGroup: boolean }[]) => {
   // 移动项目
   const newItems = [...items]
@@ -486,16 +491,27 @@ const handleLayerReorder = (fromIdx: number, toIdx: number, items: { id: string;
 
 // 图层面板删除元素
 const handleLayerDelete = (id: string) => {
+  const el = activePage.value.elements.find(e => e.id === id)
+  const groupId = el?.groupId
+
   project.value = {
     ...project.value,
-    pages: project.value.pages.map(p =>
-      p.id === activePageId.value
-        ? { ...p, elements: p.elements.filter(e => e.id !== id) }
-        : p
-    )
+    pages: project.value.pages.map(p => {
+      if (p.id !== activePageId.value) return p
+      let elements = p.elements.filter(e => e.id !== id)
+      // 如果删除后分组只剩1个元素，自动取消分组
+      if (groupId) {
+        const remaining = elements.filter(e => e.groupId === groupId)
+        if (remaining.length <= 1) {
+          elements = elements.map(e => e.groupId === groupId ? { ...e, groupId: undefined } : e)
+        }
+      }
+      return { ...p, elements }
+    })
   }
   if (selectedElementId.value === id) selectedElementId.value = null
   selectedElementIds.value = selectedElementIds.value.filter(i => i !== id)
+  if (groupId && selectedGroupId.value === groupId) selectedGroupId.value = null
 }
 
 // 删除分组（删除分组内所有元素）
