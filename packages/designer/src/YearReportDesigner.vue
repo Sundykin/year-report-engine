@@ -15,6 +15,9 @@
           <input v-model="project.title" class="projectTitle" placeholder="项目名称" />
         </div>
         <div class="toolbarActions">
+          <button @click="undo" :disabled="!canUndo()" class="toolbarBtn undoBtn" title="撤销 (Ctrl+Z)">⟲</button>
+          <button @click="redo" :disabled="!canRedo()" class="toolbarBtn redoBtn" title="重做 (Ctrl+Shift+Z)">⟳</button>
+          <span class="toolbarDivider"></span>
           <button
             @click="showElementBorder = !showElementBorder"
             class="toolbarBtn"
@@ -27,6 +30,14 @@
           <button @click="$emit('preview')" class="previewBtn">▶️ 预览</button>
         </div>
       </div>
+
+      <!-- 对齐工具栏 -->
+      <AlignToolbar
+        :disabled="selectedElementIds.length === 0 && !selectedGroupId"
+        :can-distribute="selectedElementIds.length >= 3 || (!!selectedGroupId && groupElementCount >= 3)"
+        @align="handleAlign"
+        @distribute="handleDistribute"
+      />
 
       <CanvasArea
         :pages="project.pages"
@@ -124,6 +135,22 @@
           @show-transform-modal="showTransformModal = true"
         />
       </template>
+      <template #layer-panel>
+        <LayerPanel
+          :elements="activePage.elements"
+          :selected-ids="selectedElementIds"
+          :selected-group-id="selectedGroupId"
+          :group-z-indexes="groupZIndexes"
+          @select="selectElement"
+          @select-group="selectGroup"
+          @toggle-visible="handleToggleVisible"
+          @toggle-lock="handleToggleLockById"
+          @delete="handleLayerDelete"
+          @delete-group="handleDeleteGroup"
+          @ungroup="handleLayerUngroup"
+          @reorder="handleLayerReorder"
+        />
+      </template>
     </PropertiesPanel>
 
     <!-- 元素右键菜单 -->
@@ -156,6 +183,13 @@
     <!-- 分组右键菜单 -->
     <div v-if="groupContextMenu" class="contextMenu" :style="{ left: groupContextMenu.x + 'px', top: groupContextMenu.y + 'px' }">
       <button @click="handleUngroupFromMenu" class="menuItem">📤 取消分组</button>
+      <div class="menuDivider" />
+      <button @click="handleGroupZIndex(1)" class="menuItem">⬆️ 上移一层</button>
+      <button @click="handleGroupZIndex(-1)" class="menuItem">⬇️ 下移一层</button>
+      <button @click="handleGroupBringToFront" class="menuItem">⏫ 置于顶层</button>
+      <button @click="handleGroupSendToBack" class="menuItem">⏬ 置于底层</button>
+      <div class="menuDivider" />
+      <button @click="handleDeleteGroupFromMenu" class="menuItem danger">🗑️ 删除分组</button>
     </div>
     <div v-if="groupContextMenu" class="contextMenuOverlay" @mousedown="groupContextMenu = null" />
 
@@ -201,8 +235,13 @@ import { useAnimations } from './composables/useAnimations'
 import { usePageOperations } from './composables/usePageOperations'
 import { useContextMenu } from './composables/useContextMenu'
 import { useKeyboardEvents } from './composables/useKeyboardEvents'
+import { useHistory } from './composables/useHistory'
 import { useSnapGuides } from './composables/useSnapGuides'
 import { useGroupOperations } from './composables/useGroupOperations'
+import { useAlignment, type AlignType, type DistributeType } from './composables/useAlignment'
+import { useClipboard } from './composables/useClipboard'
+import AlignToolbar from './components/AlignToolbar.vue'
+import LayerPanel from './components/LayerPanel.vue'
 import JSZip from 'jszip'
 import 'animate.css'
 
@@ -212,9 +251,16 @@ const COMPONENT_GROUPS = [
     { type: 'richtext', icon: '📄', label: "富文本" },
     { type: 'image', icon: '🖼️', label: "图片" },
     { type: 'shape', icon: '⬜', label: "形状" },
+    { type: 'button', icon: '🔘', label: "按钮" },
+    { type: 'icon', icon: '⭐', label: "图标" },
+    { type: 'divider', icon: '➖', label: "分割线" },
+  ]},
+  { title: "数据", items: [
+    { type: 'progress', icon: '📶', label: "进度条" },
+    { type: 'counter', icon: '🔢', label: "计数器" },
+    { type: 'chart', icon: '📊', label: "图表" },
   ]},
   { title: "媒体", items: [{ type: 'video', icon: '🎬', label: "视频" }]},
-  { title: "图表", items: [{ type: 'chart', icon: '📊', label: "图表" }]}
 ]
 
 interface Props {
@@ -238,13 +284,19 @@ const project = computed({
 const activePageId = ref(project.value.pages[0].id)
 const selectedElementIds = ref<string[]>([])
 const zoom = ref(1)
-const rightTab = ref<'props' | 'animation' | 'data'>('props')
+const rightTab = ref<'props' | 'animation' | 'data' | 'layer'>('props')
 const timelineCollapsed = ref(false)
 const dataSourceCollapsed = ref(false)
 const showChartTransformModal = ref(false)
 const showTextRenderModal = ref(false)
 const showElementBorder = ref(false)
 const selectedGroupId = ref<string | null>(null)
+
+// 分组内元素数量（用于判断是否可分布）
+const groupElementCount = computed(() => {
+  if (!selectedGroupId.value) return 0
+  return activePage.value.elements.filter(e => e.groupId === selectedGroupId.value).length
+})
 
 // 数据源相关状态
 const selectedDataSourceId = ref<string | null>(null)
@@ -268,6 +320,10 @@ const groupRotations = computed(() => {
   }
   return map
 })
+
+// 分组层级
+const groupZIndexes = computed(() => activePage.value.groupZIndexes || {})
+
 // 主选中元素（用于属性面板等）
 const selectedElementId = ref<string | null>(null)
 const selectedElement = computed(() => activePage.value.elements.find(e => e.id === selectedElementId.value))
@@ -348,9 +404,117 @@ const {
   handleSendToBack,
   handleToggleLock
 } = useContextMenu(project, activePageId, selectedElementId, updateElement)
-useKeyboardEvents(selectedElement, updateElement, deleteElement)
+// 历史记录（撤销/重做）
+const { undo, redo, canUndo, canRedo, initSnapshot, saveSnapshotImmediate } = useHistory(project)
+initSnapshot()
+
 const { guides, calcGuides, snapPosition, snapSize, snapGroupPosition, calcGroupGuides, snapGroupSize, clearGuides, getSnapPoints } = useSnapGuides(project, activePageId, CANVAS_WIDTH, CANVAS_HEIGHT)
 const { groupBounds, getGroupElements, createGroup, ungroup } = useGroupOperations(project, activePageId, selectedElementId, updateElement)
+const { alignElements, distributeElements } = useAlignment(project, activePageId, selectedElementIds, CANVAS_WIDTH, CANVAS_HEIGHT, selectedGroupId)
+const { copyElements, copyStyle, paste, pasteStyle, cut } = useClipboard(project, activePageId, selectedElementIds, selectedElementId)
+
+useKeyboardEvents(selectedElement, updateElement, deleteElement, {
+  undo, redo,
+  copy: copyElements,
+  paste: () => {
+    const ids = paste()
+    if (ids.length > 0) {
+      selectedElementIds.value = ids
+      selectedElementId.value = ids[0]
+    }
+    return ids
+  },
+  cut,
+  copyStyle,
+  pasteStyle
+})
+
+const handleAlign = (type: AlignType) => alignElements(type)
+const handleDistribute = (type: DistributeType) => distributeElements(type)
+
+// 图层面板操作
+const handleToggleVisible = (id: string) => {
+  const el = activePage.value.elements.find(e => e.id === id)
+  if (el) updateElement(id, { hidden: !el.hidden })
+}
+
+const handleToggleLockById = (id: string) => {
+  const el = activePage.value.elements.find(e => e.id === id)
+  if (el) updateElement(id, { locked: !el.locked })
+}
+
+const handleLayerReorder = (fromIdx: number, toIdx: number, items: { id: string; isGroup: boolean }[]) => {
+  // 移动项目
+  const newItems = [...items]
+  const [moved] = newItems.splice(fromIdx, 1)
+  newItems.splice(toIdx, 0, moved)
+
+  // 重新分配层级（从高到低）
+  const newGroupZIndexes: Record<string, number> = {}
+  const elementUpdates: { id: string; zIndex: number }[] = []
+
+  newItems.forEach((item, i) => {
+    const zIndex = (newItems.length - i) * 100 // 留出空间给组内元素
+    if (item.isGroup) {
+      newGroupZIndexes[item.id] = zIndex
+      // 更新组内元素的 zIndex
+      const groupElements = activePage.value.elements.filter(e => e.groupId === item.id)
+      groupElements.forEach((el, j) => {
+        elementUpdates.push({ id: el.id, zIndex: zIndex - j - 1 })
+      })
+    } else {
+      elementUpdates.push({ id: item.id, zIndex })
+    }
+  })
+
+  project.value = {
+    ...project.value,
+    pages: project.value.pages.map(p =>
+      p.id === activePageId.value
+        ? {
+            ...p,
+            groupZIndexes: newGroupZIndexes,
+            elements: p.elements.map(e => {
+              const u = elementUpdates.find(x => x.id === e.id)
+              return u ? { ...e, zIndex: u.zIndex } : e
+            })
+          }
+        : p
+    )
+  }
+}
+
+// 图层面板删除元素
+const handleLayerDelete = (id: string) => {
+  project.value = {
+    ...project.value,
+    pages: project.value.pages.map(p =>
+      p.id === activePageId.value
+        ? { ...p, elements: p.elements.filter(e => e.id !== id) }
+        : p
+    )
+  }
+  if (selectedElementId.value === id) selectedElementId.value = null
+  selectedElementIds.value = selectedElementIds.value.filter(i => i !== id)
+}
+
+// 删除分组（删除分组内所有元素）
+const handleDeleteGroup = (groupId: string) => {
+  project.value = {
+    ...project.value,
+    pages: project.value.pages.map(p =>
+      p.id === activePageId.value
+        ? { ...p, elements: p.elements.filter(e => e.groupId !== groupId) }
+        : p
+    )
+  }
+  if (selectedGroupId.value === groupId) selectedGroupId.value = null
+}
+
+// 图层面板取消分组
+const handleLayerUngroup = (groupId: string) => {
+  ungroup(groupId)
+}
 
 // 数据源操作
 const selectedDataSource = computed(() => {
@@ -455,6 +619,118 @@ const handleUngroupFromMenu = () => {
     ungroup(groupContextMenu.value.groupId)
     groupContextMenu.value = null
     selectedGroupId.value = null
+  }
+}
+
+// 删除分组（从分组右键菜单）
+const handleDeleteGroupFromMenu = () => {
+  if (groupContextMenu.value) {
+    handleDeleteGroup(groupContextMenu.value.groupId)
+    groupContextMenu.value = null
+  }
+}
+
+// 获取图层列表（分组+独立元素）
+const getLayerItems = () => {
+  const groups = new Map<string, typeof activePage.value.elements>()
+  const standalone: typeof activePage.value.elements = []
+
+  activePage.value.elements.forEach(el => {
+    if (el.groupId) {
+      if (!groups.has(el.groupId)) groups.set(el.groupId, [])
+      groups.get(el.groupId)!.push(el)
+    } else {
+      standalone.push(el)
+    }
+  })
+
+  const items: { id: string; isGroup: boolean; zIndex: number }[] = []
+  groups.forEach((_, groupId) => {
+    items.push({ id: groupId, isGroup: true, zIndex: groupZIndexes.value[groupId] || 0 })
+  })
+  standalone.forEach(el => {
+    items.push({ id: el.id, isGroup: false, zIndex: el.zIndex || 0 })
+  })
+  return items.sort((a, b) => b.zIndex - a.zIndex)
+}
+
+// 分组层级调整
+const handleGroupZIndex = (delta: number) => {
+  if (!groupContextMenu.value) return
+  const groupId = groupContextMenu.value.groupId
+  const items = getLayerItems()
+  const idx = items.findIndex(i => i.id === groupId)
+  if (idx < 0) return
+
+  const targetIdx = delta > 0 ? idx - 1 : idx + 1
+  if (targetIdx < 0 || targetIdx >= items.length) return
+
+  // 交换位置
+  const newItems = [...items]
+  ;[newItems[idx], newItems[targetIdx]] = [newItems[targetIdx], newItems[idx]]
+
+  applyLayerOrder(newItems)
+  groupContextMenu.value = null
+}
+
+const handleGroupBringToFront = () => {
+  if (!groupContextMenu.value) return
+  const groupId = groupContextMenu.value.groupId
+  const items = getLayerItems()
+  const idx = items.findIndex(i => i.id === groupId)
+  if (idx <= 0) return
+
+  const [item] = items.splice(idx, 1)
+  items.unshift(item)
+  applyLayerOrder(items)
+  groupContextMenu.value = null
+}
+
+const handleGroupSendToBack = () => {
+  if (!groupContextMenu.value) return
+  const groupId = groupContextMenu.value.groupId
+  const items = getLayerItems()
+  const idx = items.findIndex(i => i.id === groupId)
+  if (idx < 0 || idx === items.length - 1) return
+
+  const [item] = items.splice(idx, 1)
+  items.push(item)
+  applyLayerOrder(items)
+  groupContextMenu.value = null
+}
+
+// 应用图层顺序
+const applyLayerOrder = (items: { id: string; isGroup: boolean }[]) => {
+  const newGroupZIndexes: Record<string, number> = {}
+  const elementUpdates: { id: string; zIndex: number }[] = []
+
+  items.forEach((item, i) => {
+    const zIndex = (items.length - i) * 100
+    if (item.isGroup) {
+      newGroupZIndexes[item.id] = zIndex
+      const groupElements = activePage.value.elements.filter(e => e.groupId === item.id)
+      groupElements.forEach((el, j) => {
+        elementUpdates.push({ id: el.id, zIndex: zIndex - j - 1 })
+      })
+    } else {
+      elementUpdates.push({ id: item.id, zIndex })
+    }
+  })
+
+  project.value = {
+    ...project.value,
+    pages: project.value.pages.map(p =>
+      p.id === activePageId.value
+        ? {
+            ...p,
+            groupZIndexes: newGroupZIndexes,
+            elements: p.elements.map(e => {
+              const u = elementUpdates.find(x => x.id === e.id)
+              return u ? { ...e, zIndex: u.zIndex } : e
+            })
+          }
+        : p
+    )
   }
 }
 
@@ -774,21 +1050,31 @@ const handleGroupDragEnd = () => {
 
 // 创建分组
 const handleCreateGroup = () => {
-  console.log('[createGroup] selectedElementIds:', selectedElementIds.value)
   if (selectedElementIds.value.length >= 2) {
-    const groupId = createGroup(selectedElementIds.value)
-    console.log('[createGroup] created groupId:', groupId)
-    if (groupId) {
-      // 创建分组后自动选中分组
-      selectedGroupId.value = groupId
-      selectedElementIds.value = []
-      selectedElementId.value = null
-      // 打印分组后的元素状态
-      setTimeout(() => {
-        console.log('[createGroup] elements after group:', activePage.value.elements.map(e => ({ id: e.id, groupId: e.groupId })))
-        console.log('[createGroup] groupBounds:', groupBounds.value)
-      }, 100)
+    const groupId = `group_${Date.now()}`
+    const idSet = new Set(selectedElementIds.value)
+
+    // 获取选中元素的最大 zIndex
+    const selectedEls = activePage.value.elements.filter(e => idSet.has(e.id))
+    const maxZ = Math.max(...selectedEls.map(e => e.zIndex || 0))
+
+    // 一次性更新：设置 groupId 和 groupZIndexes
+    project.value = {
+      ...project.value,
+      pages: project.value.pages.map(p =>
+        p.id === activePageId.value
+          ? {
+              ...p,
+              elements: p.elements.map(e => idSet.has(e.id) ? { ...e, groupId } : e),
+              groupZIndexes: { ...p.groupZIndexes, [groupId]: maxZ }
+            }
+          : p
+      )
     }
+
+    selectedGroupId.value = groupId
+    selectedElementIds.value = []
+    selectedElementId.value = null
   }
   contextMenu.value = null
 }
@@ -932,6 +1218,12 @@ const handleDragEnd = () => {
   user-select: none;
 }
 
+.designerContainer *,
+.designerContainer *::before,
+.designerContainer *::after {
+  box-sizing: border-box;
+}
+
 .designerContainer input,
 .designerContainer textarea {
   user-select: text;
@@ -950,8 +1242,10 @@ const handleDragEnd = () => {
 .zoomInfo { font-size: 12px; color: #737373; min-width: 40px; }
 .zoomBtn { width: 28px; height: 28px; background: #262626; border: 1px solid #404040; border-radius: 4px; color: white; cursor: pointer; }
 .toolbarBtn { width: 28px; height: 28px; background: #262626; border: 1px solid #404040; border-radius: 4px; color: #737373; cursor: pointer; font-size: 14px; }
-.toolbarBtn:hover { border-color: #525252; color: white; }
+.toolbarBtn:hover:not(:disabled) { border-color: #525252; color: white; }
+.toolbarBtn:disabled { opacity: 0.4; cursor: not-allowed; }
 .toolbarBtn.active { background: #2563eb; border-color: #2563eb; color: white; }
+.toolbarDivider { width: 1px; height: 20px; background: #404040; margin: 0 4px; }
 .previewBtn { background: #2563eb; color: white; padding: 6px 12px; border-radius: 4px; font-size: 13px; border: none; cursor: pointer; }
 .previewBtn:hover { background: #1d4ed8; }
 

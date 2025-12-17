@@ -1,10 +1,22 @@
 // 核心类型定义（框架无关）
 
-export type ElementType = 'text' | 'image' | 'shape' | 'chart' | 'video' | 'richtext'
+export type ElementType = 'text' | 'image' | 'shape' | 'chart' | 'video' | 'richtext' | 'button' | 'icon' | 'divider' | 'progress' | 'counter'
 
 export type ShapeType = 'rectangle' | 'circle' | 'triangle' | 'parallelogram' | 'diamond' | 'star' | 'hexagon'
 
 export type ChartType = 'bar' | 'line' | 'pie'
+
+// 按钮样式类型
+export type ButtonStyle = 'solid' | 'outline' | 'text' | 'gradient'
+
+// 按钮点击动作
+export interface ButtonAction {
+  type: 'link' | 'phone' | 'email' | 'page' | 'popup' | 'none'
+  value?: string // URL/电话号码/邮箱/页面ID
+}
+
+// 进度条类型
+export type ProgressType = 'line' | 'circle' | 'semicircle'
 
 // 动画触发时机
 export type AnimationTrigger =
@@ -91,6 +103,7 @@ export interface DataBinding {
 export interface H5Element {
   id: string
   type: ElementType
+  name?: string  // 图层名称
   // 位置和尺寸（绝对定位）
   x: number
   y: number
@@ -117,8 +130,29 @@ export interface H5Element {
   locked?: boolean
   // 可见性
   visible?: boolean
+  hidden?: boolean
   // 组合ID
   groupId?: string
+  // 按钮配置
+  buttonStyle?: ButtonStyle
+  buttonAction?: ButtonAction
+  buttonIcon?: string
+  // 进度条配置
+  progressType?: ProgressType
+  progressValue?: number // 0-100
+  progressColor?: string
+  // 计数器配置
+  counterValue?: number
+  counterPrefix?: string
+  counterSuffix?: string
+  counterDecimals?: number
+  counterDuration?: number // 动画时长(秒)
+  // 分割线配置
+  dividerStyle?: 'solid' | 'dashed' | 'dotted'
+  dividerText?: string
+  // 图标配置
+  iconName?: string
+  iconColor?: string
 }
 
 export interface H5Page {
@@ -139,6 +173,8 @@ export interface H5Page {
   elements: H5Element[]
   // 分组旋转角度 { groupId: angle }
   groupRotations?: Record<string, number>
+  // 分组层级 { groupId: zIndex }
+  groupZIndexes?: Record<string, number>
   // 页面切换动画
   transition?: {
     type: 'slide' | 'fade' | 'zoom' | 'flip'

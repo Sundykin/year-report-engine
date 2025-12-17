@@ -49,6 +49,46 @@
 
     <!-- 图表 -->
     <div v-else-if="element.type === 'chart'" ref="chartRef" :style="contentStyle" />
+
+    <!-- 按钮 -->
+    <button
+      v-else-if="element.type === 'button'"
+      :style="buttonStyle"
+      @click="handleButtonClick"
+    >
+      <span v-if="element.buttonIcon" class="buttonIcon">{{ element.buttonIcon }}</span>
+      {{ element.content || '按钮' }}
+    </button>
+
+    <!-- 图标 -->
+    <div v-else-if="element.type === 'icon'" :style="iconStyle" class="iconElement">
+      {{ getIconChar(element.iconName) }}
+    </div>
+
+    <!-- 分割线 -->
+    <div v-else-if="element.type === 'divider'" :style="dividerStyle" class="dividerElement">
+      <span v-if="element.dividerText" class="dividerText">{{ element.dividerText }}</span>
+    </div>
+
+    <!-- 进度条 -->
+    <div v-else-if="element.type === 'progress'" :style="contentStyle" class="progressElement">
+      <div v-if="element.progressType === 'line'" class="progressLine">
+        <div class="progressTrack" :style="{ backgroundColor: element.style?.backgroundColor || '#262626', borderRadius: element.style?.borderRadius }">
+          <div class="progressBar" :style="{ width: `${element.progressValue || 0}%`, backgroundColor: element.progressColor || '#3b82f6', borderRadius: element.style?.borderRadius }" />
+        </div>
+      </div>
+      <svg v-else-if="element.progressType === 'circle'" viewBox="0 0 100 100" class="progressCircle">
+        <circle cx="50" cy="50" r="45" fill="none" :stroke="element.style?.backgroundColor || '#262626'" stroke-width="8" />
+        <circle cx="50" cy="50" r="45" fill="none" :stroke="element.progressColor || '#3b82f6'" stroke-width="8"
+          :stroke-dasharray="`${(element.progressValue || 0) * 2.83} 283`" stroke-linecap="round" transform="rotate(-90 50 50)" />
+        <text x="50" y="55" text-anchor="middle" :fill="element.style?.color || '#fff'" font-size="20">{{ element.progressValue || 0 }}%</text>
+      </svg>
+    </div>
+
+    <!-- 计数器 -->
+    <div v-else-if="element.type === 'counter'" :style="contentStyle" class="counterElement">
+      {{ element.counterPrefix }}{{ animatedCounter }}{{ element.counterSuffix }}
+    </div>
   </div>
 </template>
 
@@ -206,6 +246,110 @@ const contentStyle = computed(() => ({
   height: '100%',
   ...props.element.style
 }))
+
+// 按钮样式
+const buttonStyle = computed(() => {
+  const base: any = {
+    width: '100%',
+    height: '100%',
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '4px',
+    ...props.element.style
+  }
+  if (props.element.buttonStyle === 'outline') {
+    base.backgroundColor = 'transparent'
+    base.border = `2px solid ${props.element.style?.backgroundColor || '#3b82f6'}`
+    base.color = props.element.style?.backgroundColor || '#3b82f6'
+  } else if (props.element.buttonStyle === 'text') {
+    base.backgroundColor = 'transparent'
+    base.color = props.element.style?.backgroundColor || '#3b82f6'
+  }
+  return base
+})
+
+// 图标样式
+const iconStyle = computed(() => ({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: `${Math.min(props.element.width, props.element.height) * 0.8}px`,
+  color: props.element.iconColor || '#3b82f6'
+}))
+
+// 分割线样式
+const dividerStyle = computed(() => ({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  position: 'relative' as const,
+  '&::before': {
+    content: '""',
+    flex: 1,
+    height: '1px',
+    backgroundColor: props.element.style?.backgroundColor || '#404040',
+    borderStyle: props.element.dividerStyle || 'solid'
+  }
+}))
+
+// 图标字符映射
+const getIconChar = (name?: string) => {
+  const icons: Record<string, string> = {
+    star: '⭐', heart: '❤️', check: '✓', close: '✕', arrow: '→',
+    home: '🏠', user: '👤', settings: '⚙️', search: '🔍', mail: '✉️'
+  }
+  return icons[name || 'star'] || '⭐'
+}
+
+// 按钮点击处理
+const handleButtonClick = () => {
+  const action = props.element.buttonAction
+  if (!action || action.type === 'none') return
+
+  switch (action.type) {
+    case 'link':
+      if (action.value) window.open(action.value, '_blank')
+      break
+    case 'phone':
+      if (action.value) window.location.href = `tel:${action.value}`
+      break
+    case 'email':
+      if (action.value) window.location.href = `mailto:${action.value}`
+      break
+  }
+}
+
+// 计数器动画
+const animatedCounter = ref(0)
+const animateCounter = () => {
+  if (props.element.type !== 'counter') return
+  const target = props.element.counterValue || 0
+  const duration = (props.element.counterDuration || 2) * 1000
+  const decimals = props.element.counterDecimals || 0
+  const start = performance.now()
+
+  const animate = (now: number) => {
+    const progress = Math.min((now - start) / duration, 1)
+    const eased = 1 - Math.pow(1 - progress, 3) // easeOutCubic
+    animatedCounter.value = Number((target * eased).toFixed(decimals))
+    if (progress < 1) requestAnimationFrame(animate)
+  }
+  requestAnimationFrame(animate)
+}
+
+watch(() => props.isActive, (active) => {
+  if (active && props.element.type === 'counter') {
+    animatedCounter.value = 0
+    animateCounter()
+  }
+}, { immediate: true })
 
 // 解析图表数据（支持数据绑定和转换函数）
 const resolvedChartData = computed(() => {
@@ -372,5 +516,44 @@ const updateChart = () => {
 
 .richtext-content :deep(input[type="checkbox"]) {
   margin-right: 5px;
+}
+
+/* 按钮 */
+.buttonIcon { margin-right: 4px; }
+
+/* 图标 */
+.iconElement { user-select: none; }
+
+/* 分割线 */
+.dividerElement::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: currentColor;
+}
+.dividerText {
+  position: relative;
+  z-index: 1;
+  padding: 0 10px;
+  background: inherit;
+  font-size: 12px;
+  color: #888;
+}
+
+/* 进度条 */
+.progressLine { width: 100%; height: 100%; }
+.progressTrack { width: 100%; height: 100%; overflow: hidden; }
+.progressBar { height: 100%; transition: width 0.3s ease; }
+.progressCircle { width: 100%; height: 100%; }
+
+/* 计数器 */
+.counterElement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
 }
 </style>

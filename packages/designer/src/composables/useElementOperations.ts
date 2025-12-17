@@ -10,28 +10,49 @@ export function useElementOperations(
   activePageId: Ref<string>,
   selectedElementId: Ref<string | null>
 ) {
+  const getElementDefaults = (type: ElementType): Partial<H5Element> => {
+    const defaults: Record<string, Partial<H5Element>> = {
+      text: { width: 200, height: 40, content: '双击编辑', style: { color: '#ffffff', fontSize: '16px' } },
+      richtext: { width: 200, height: 40, content: '<p>双击编辑富文本</p>', style: { color: '#ffffff', fontSize: '16px' } },
+      image: { width: 100, height: 100, src: 'https://picsum.photos/200/200' },
+      shape: { width: 100, height: 100, shapeType: 'rectangle', style: { backgroundColor: '#3b82f6' } },
+      video: { width: 200, height: 150, src: '' },
+      chart: { width: 200, height: 200, chartType: 'bar', chartData: DEFAULT_CHART_DATA },
+      button: {
+        width: 120, height: 40, content: '按钮',
+        buttonStyle: 'solid',
+        buttonAction: { type: 'none' },
+        style: { backgroundColor: '#3b82f6', color: '#ffffff', fontSize: '14px', borderRadius: '4px' }
+      },
+      icon: { width: 40, height: 40, iconName: 'star', iconColor: '#3b82f6' },
+      divider: { width: 200, height: 2, dividerStyle: 'solid', style: { backgroundColor: '#404040' } },
+      progress: {
+        width: 200, height: 20, progressType: 'line', progressValue: 60, progressColor: '#3b82f6',
+        style: { backgroundColor: '#262626', borderRadius: '10px' }
+      },
+      counter: {
+        width: 120, height: 60, counterValue: 1000, counterPrefix: '', counterSuffix: '',
+        counterDecimals: 0, counterDuration: 2,
+        style: { color: '#ffffff', fontSize: '32px', fontWeight: 'bold' }
+      }
+    }
+    return defaults[type] || { width: 100, height: 100 }
+  }
+
   const addElement = (type: ElementType) => {
-    const isText = type === 'text' || type === 'richtext'
     const activePage = project.value.pages.find(p => p.id === activePageId.value)!
+    const defaults = getElementDefaults(type)
 
     const newElement: H5Element = {
       id: generateId(),
       type,
-      x: CANVAS_WIDTH / 2 - (isText ? 100 : 50),
-      y: CANVAS_HEIGHT / 2 - (isText ? 20 : 50),
-      width: isText ? 200 : 100,
-      height: isText ? 40 : 100,
+      x: CANVAS_WIDTH / 2 - (defaults.width || 100) / 2,
+      y: CANVAS_HEIGHT / 2 - (defaults.height || 100) / 2,
+      width: defaults.width || 100,
+      height: defaults.height || 100,
       zIndex: activePage.elements.length + 1,
-      style: {
-        color: '#ffffff',
-        fontSize: '16px',
-        backgroundColor: type === 'shape' ? '#3b82f6' : 'transparent',
-      },
-      content: type === 'text' ? '双击编辑' : type === 'richtext' ? '<p>双击编辑富文本</p>' : undefined,
-      src: type === 'image' ? 'https://picsum.photos/200/200' : type === 'video' ? '' : undefined,
-      chartType: 'bar',
-      shapeType: type === 'shape' ? 'rectangle' : undefined,
-      chartData: DEFAULT_CHART_DATA,
+      style: { color: '#ffffff', fontSize: '16px', backgroundColor: 'transparent', ...defaults.style },
+      ...defaults,
       animations: [{ id: generateId(), type: 'fadeIn', duration: 1, delay: 0, trigger: 'onEnter', order: 0 }]
     }
 

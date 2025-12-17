@@ -16,6 +16,16 @@
         :class="{ active: rightTab === 'data' }"
         @click="$emit('update:rightTab', 'data')"
       >数据</button>
+      <button
+        class="rightTabBtn"
+        :class="{ active: rightTab === 'layer' }"
+        @click="$emit('update:rightTab', 'layer')"
+      >图层</button>
+    </div>
+
+    <!-- 图层面板 -->
+    <div v-show="rightTab === 'layer'" class="layerPanelWrapper">
+      <slot name="layer-panel" />
     </div>
 
     <!-- 动画设置面板 -->
@@ -39,13 +49,13 @@
 import SimpleScrollView from './SimpleScrollView.vue'
 
 interface Props {
-  rightTab: 'props' | 'animation' | 'data'
+  rightTab: 'props' | 'animation' | 'data' | 'layer'
 }
 
 defineProps<Props>()
 
 defineEmits<{
-  'update:rightTab': [tab: 'props' | 'animation' | 'data']
+  'update:rightTab': [tab: 'props' | 'animation' | 'data' | 'layer']
 }>()
 </script>
 
@@ -66,4 +76,5 @@ defineEmits<{
 .dataPanel { flex: 1; overflow: hidden; }
 .propertiesContent { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 16px; }
 .animationPanel { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 12px; overflow-y: auto; }
+.layerPanelWrapper { flex: 1; overflow: hidden; }
 </style>
