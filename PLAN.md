@@ -367,6 +367,193 @@
 
 ---
 
+## Phase 8: 动态表单属性面板（优先级：高）
+
+### 背景与问题
+
+当前每新增一个组件，都需要创建对应的 `XxxProperties.vue` 属性面板组件，导致：
+- 代码量大幅增加（目前已有 12 个属性面板组件）
+- 重复代码多（样式、布局、表单控件）
+- 维护成本高
+- 新增组件开发效率低
+
+### 现有表单控件分析
+
+通过分析现有属性面板，总结出以下原子级表单控件：
+
+| 控件类型 | 用途 | 示例 |
+|---------|------|------|
+| `number` | 数值输入 | x, y, width, height, rotation, fontSize |
+| `text` | 文本输入 | content, tagText, counterPrefix |
+| `textarea` | 多行文本 | content, listItems |
+| `color` | 颜色选择 | color, backgroundColor, progressColor |
+| `select` | 下拉选择 | shapeType, progressType, listType |
+| `select-group` | 分组下拉 | shapeType (带 optgroup) |
+| `checkbox` | 开关 | locked, useGradient |
+| `range` | 滑块 | progressValue, filter values |
+| `button-group` | 按钮组切换 | backgroundType, renderMode |
+| `datetime` | 日期时间 | countdownTarget |
+| `code` | 代码编辑器 | renderFunction, transform |
+| `upload` | 文件上传 | src, backgroundImage |
+| `multi-select` | 多选下拉 | dataBinding.sourceIds |
+| `collapsible` | 可折叠区域 | 样式效果分组 |
+| `grid` | 网格布局 | 2列/3列/4列布局 |
+
+### 方案评估
+
+#### 方案一：自研轻量级 Schema 表单
+
+**优点：**
+- 完全可控，按需定制
+- 无外部依赖，体积小
+- 与现有代码风格一致
+
+**缺点：**
+- 开发工作量较大
+- 需要自行处理复杂场景
+
+**实现思路：**
+```typescript
+// 组件元信息定义
+interface ComponentMeta {
+  type: ElementType
+  name: string
+  icon: string
+  defaultProps: Partial<H5Element>
+  schema: FormSchema[]
+}
+
+interface FormSchema {
+  field: string           // 字段路径，如 'style.color'
+  label: string
+  type: 'number' | 'text' | 'color' | 'select' | ...
+  options?: { label: string; value: any }[]  // select 选项
+  min?: number
+  max?: number
+  step?: number
+  placeholder?: string
+  showWhen?: (element: H5Element) => boolean  // 条件显示
+  grid?: number           // 占用列数 (1-4)
+  group?: string          // 分组名称
+  collapsible?: boolean   // 是否可折叠
+}
+```
+
+#### 方案二：使用 FormCreate
+
+**优点：**
+- 功能完善，支持复杂表单
+- 社区活跃，文档齐全
+- 支持 Vue3
+
+**缺点：**
+- 引入额外依赖（~100KB）
+- 样式需要适配深色主题
+- 部分控件可能不符合需求
+
+**官网：** https://www.form-create.com/
+
+#### 方案三：使用 FormKit
+
+**优点：**
+- 现代化设计，Vue3 原生
+- Schema 驱动
+- 高度可定制
+
+**缺点：**
+- 学习成本
+- 需要自定义主题
+
+**官网：** https://formkit.com/
+
+#### 方案四：使用 VueFormulate / Vuelidate + 自定义
+
+**优点：**
+- 轻量级
+- 灵活组合
+
+**缺点：**
+- 需要较多自定义工作
+
+### 推荐方案：自研轻量级 Schema 表单
+
+考虑到：
+1. 项目已有明确的控件类型需求
+2. 需要深度定制深色主题
+3. 避免引入过多外部依赖
+4. 控件类型相对固定
+
+**建议采用自研方案**，实现步骤：
+
+### 实现计划
+
+#### 8.1 基础架构
+- [ ] 定义 FormSchema 类型系统
+- [ ] 创建 SchemaForm.vue 动态表单组件
+- [ ] 实现字段路径解析（支持 `style.color` 嵌套路径）
+
+#### 8.2 原子控件库
+- [ ] NumberInput - 数值输入
+- [ ] TextInput - 文本输入
+- [ ] TextareaInput - 多行文本
+- [ ] ColorPicker - 颜色选择
+- [ ] SelectInput - 下拉选择
+- [ ] CheckboxInput - 开关
+- [ ] RangeSlider - 滑块
+- [ ] ButtonGroup - 按钮组
+- [ ] DatetimeInput - 日期时间
+- [ ] CodeEditor - 代码编辑（复用现有）
+- [ ] FileUpload - 文件上传（复用现有）
+- [ ] MultiSelect - 多选
+
+#### 8.3 布局组件
+- [ ] FormSection - 分组区域（带标题）
+- [ ] FormGrid - 网格布局
+- [ ] FormCollapsible - 可折叠区域
+
+#### 8.4 组件元信息定义
+- [ ] 为每个组件类型定义 schema
+- [ ] 迁移现有属性面板到 schema 配置
+- [ ] 支持条件显示逻辑
+
+#### 8.5 高级功能
+- [ ] 自定义控件注册机制
+- [ ] 表单验证
+- [ ] 联动逻辑（字段间依赖）
+
+### 预期收益
+
+1. **代码量减少 60%+**：12 个属性面板 → 1 个动态表单 + schema 配置
+2. **新增组件效率提升**：只需定义 schema，无需写 Vue 组件
+3. **一致性保证**：所有控件样式统一
+4. **易于维护**：修改控件样式只需改一处
+
+### 示例 Schema 配置
+
+```typescript
+// 计数器组件 schema 示例
+const counterSchema: FormSchema[] = [
+  { field: 'counterValue', label: '目标值', type: 'number', grid: 2 },
+  { field: 'counterPrefix', label: '前缀', type: 'text', placeholder: '¥', grid: 1 },
+  { field: 'counterSuffix', label: '后缀', type: 'text', placeholder: '元', grid: 1 },
+  { field: 'counterDecimals', label: '小数位', type: 'number', min: 0, max: 4, grid: 1 },
+  { field: 'counterDuration', label: '动画时长(秒)', type: 'number', min: 0.5, max: 10, step: 0.5, grid: 1 },
+]
+
+// 标签组件 schema 示例
+const tagSchema: FormSchema[] = [
+  { field: 'tagText', label: '标签文字', type: 'text', placeholder: '标签' },
+  { field: 'tagColor', label: '颜色', type: 'color', grid: 1 },
+  { field: 'tagVariant', label: '样式', type: 'select', grid: 1, options: [
+    { label: '实心', value: 'solid' },
+    { label: '描边', value: 'outline' },
+    { label: '浅色', value: 'light' },
+  ]},
+]
+```
+
+---
+
 ## 技术债务清理
 
 ### 代码质量
