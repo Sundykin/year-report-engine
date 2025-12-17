@@ -74,20 +74,60 @@
     <div v-else-if="element.type === 'progress'" :style="contentStyle" class="progressElement">
       <div v-if="element.progressType === 'line'" class="progressLine">
         <div class="progressTrack" :style="{ backgroundColor: element.style?.backgroundColor || '#262626', borderRadius: element.style?.borderRadius }">
-          <div class="progressBar" :style="{ width: `${element.progressValue || 0}%`, backgroundColor: element.progressColor || '#3b82f6', borderRadius: element.style?.borderRadius }" />
+          <div class="progressBar" :style="{ width: `${animatedProgress}%`, backgroundColor: element.progressColor || '#3b82f6', borderRadius: element.style?.borderRadius }" />
         </div>
       </div>
       <svg v-else-if="element.progressType === 'circle'" viewBox="0 0 100 100" class="progressCircle">
         <circle cx="50" cy="50" r="45" fill="none" :stroke="element.style?.backgroundColor || '#262626'" stroke-width="8" />
         <circle cx="50" cy="50" r="45" fill="none" :stroke="element.progressColor || '#3b82f6'" stroke-width="8"
-          :stroke-dasharray="`${(element.progressValue || 0) * 2.83} 283`" stroke-linecap="round" transform="rotate(-90 50 50)" />
-        <text x="50" y="55" text-anchor="middle" :fill="element.style?.color || '#fff'" font-size="20">{{ element.progressValue || 0 }}%</text>
+          :stroke-dasharray="`${animatedProgress * 2.83} 283`" stroke-linecap="round" transform="rotate(-90 50 50)" class="progressArc" />
+        <text x="50" y="55" text-anchor="middle" :fill="element.style?.color || '#fff'" font-size="20">{{ Math.round(animatedProgress) }}%</text>
+      </svg>
+      <svg v-else-if="element.progressType === 'semicircle'" viewBox="0 0 100 60" class="progressSemicircle">
+        <path d="M 5 55 A 45 45 0 0 1 95 55" fill="none" :stroke="element.style?.backgroundColor || '#262626'" stroke-width="8" stroke-linecap="round" />
+        <path d="M 5 55 A 45 45 0 0 1 95 55" fill="none" :stroke="element.progressColor || '#3b82f6'" stroke-width="8"
+          :stroke-dasharray="`${animatedProgress * 1.41} 141`" stroke-linecap="round" class="progressArc" />
+        <text x="50" y="50" text-anchor="middle" :fill="element.style?.color || '#fff'" font-size="18">{{ Math.round(animatedProgress) }}%</text>
       </svg>
     </div>
 
     <!-- 计数器 -->
     <div v-else-if="element.type === 'counter'" :style="contentStyle" class="counterElement">
-      {{ element.counterPrefix }}{{ animatedCounter }}{{ element.counterSuffix }}
+      {{ element.counterPrefix }}{{ formatNumber(animatedCounter) }}{{ element.counterSuffix }}
+    </div>
+
+    <!-- 倒计时 -->
+    <div v-else-if="element.type === 'countdown'" :style="contentStyle" class="countdownElement">
+      <template v-if="countdownValues.expired">已结束</template>
+      <template v-else>
+        <span v-if="element.countdownFormat !== 'hms' && element.countdownFormat !== 'ms' && element.countdownFormat !== 's'" class="countdownItem">
+          <span class="countdownNum">{{ countdownValues.days }}</span><span class="countdownLabel">天</span>
+        </span>
+        <span v-if="element.countdownFormat !== 'ms' && element.countdownFormat !== 's'" class="countdownItem">
+          <span class="countdownNum">{{ countdownValues.hours }}</span><span class="countdownLabel">时</span>
+        </span>
+        <span v-if="element.countdownFormat !== 's'" class="countdownItem">
+          <span class="countdownNum">{{ countdownValues.minutes }}</span><span class="countdownLabel">分</span>
+        </span>
+        <span class="countdownItem">
+          <span class="countdownNum">{{ countdownValues.seconds }}</span><span class="countdownLabel">秒</span>
+        </span>
+      </template>
+    </div>
+
+    <!-- 列表 -->
+    <div v-else-if="element.type === 'list'" :style="contentStyle" class="listElement">
+      <component :is="element.listType === 'ordered' ? 'ol' : 'ul'" class="listContainer">
+        <li v-for="(item, idx) in (element.listItems || [])" :key="idx" class="listItem">
+          <span v-if="element.listType === 'checklist'" class="listCheck" :style="{ color: element.listIconColor || '#3b82f6' }">✓</span>
+          {{ item }}
+        </li>
+      </component>
+    </div>
+
+    <!-- 标签 -->
+    <div v-else-if="element.type === 'tag'" :style="tagStyle" class="tagElement">
+      {{ element.tagText || '标签' }}
     </div>
   </div>
 </template>
@@ -310,6 +350,67 @@ const dividerStyle = computed(() => ({
   }
 }))
 
+// 标签样式
+const tagStyle = computed(() => {
+  const color = props.element.tagColor || '#3b82f6'
+  const variant = props.element.tagVariant || 'solid'
+  const base: any = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '4px 12px',
+    borderRadius: props.element.style?.borderRadius || '4px',
+    fontSize: props.element.style?.fontSize || '12px',
+    fontWeight: 500
+  }
+  if (variant === 'solid') {
+    base.backgroundColor = color
+    base.color = '#fff'
+  } else if (variant === 'outline') {
+    base.backgroundColor = 'transparent'
+    base.border = `1px solid ${color}`
+    base.color = color
+  } else {
+    base.backgroundColor = `${color}20`
+    base.color = color
+  }
+  return base
+})
+
+// 倒计时
+const countdownValues = ref({ days: 0, hours: 0, minutes: 0, seconds: 0, expired: false })
+let countdownTimer: number | null = null
+
+const updateCountdown = () => {
+  if (props.element.type !== 'countdown' || !props.element.countdownTarget) {
+    countdownValues.value = { days: 0, hours: 0, minutes: 0, seconds: 0, expired: false }
+    return
+  }
+  const target = new Date(props.element.countdownTarget).getTime()
+  const now = Date.now()
+  const diff = target - now
+
+  if (diff <= 0) {
+    countdownValues.value = { days: 0, hours: 0, minutes: 0, seconds: 0, expired: true }
+    if (countdownTimer) clearInterval(countdownTimer)
+    return
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+  countdownValues.value = { days, hours, minutes, seconds, expired: false }
+}
+
+watch(() => props.element.countdownTarget, () => {
+  if (countdownTimer) clearInterval(countdownTimer)
+  if (props.element.type === 'countdown' && props.element.countdownTarget) {
+    updateCountdown()
+    countdownTimer = setInterval(updateCountdown, 1000) as unknown as number
+  }
+}, { immediate: true })
+
 // 图标字符映射
 const getIconChar = (name?: string) => {
   const icons: Record<string, string> = {
@@ -337,8 +438,34 @@ const handleButtonClick = () => {
   }
 }
 
+// 进度条动画
+const animatedProgress = ref(0)
+const animateProgress = () => {
+  if (props.element.type !== 'progress') return
+  const target = props.element.progressValue || 0
+  const duration = 1000
+  const start = performance.now()
+
+  const animate = (now: number) => {
+    const p = Math.min((now - start) / duration, 1)
+    const eased = 1 - Math.pow(1 - p, 3)
+    animatedProgress.value = target * eased
+    if (p < 1) requestAnimationFrame(animate)
+  }
+  requestAnimationFrame(animate)
+}
+
 // 计数器动画
 const animatedCounter = ref(0)
+const formatNumber = (num: number) => {
+  const decimals = props.element.counterDecimals || 0
+  const formatted = num.toFixed(decimals)
+  // 千分位格式化
+  const parts = formatted.split('.')
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return parts.join('.')
+}
+
 const animateCounter = () => {
   if (props.element.type !== 'counter') return
   const target = props.element.counterValue || 0
@@ -356,9 +483,15 @@ const animateCounter = () => {
 }
 
 watch(() => props.isActive, (active) => {
-  if (active && props.element.type === 'counter') {
-    animatedCounter.value = 0
-    animateCounter()
+  if (active) {
+    if (props.element.type === 'counter') {
+      animatedCounter.value = 0
+      animateCounter()
+    }
+    if (props.element.type === 'progress') {
+      animatedProgress.value = 0
+      animateProgress()
+    }
   }
 }, { immediate: true })
 
@@ -565,6 +698,8 @@ const updateChart = () => {
 .progressTrack { width: 100%; height: 100%; overflow: hidden; }
 .progressBar { height: 100%; transition: width 0.3s ease; }
 .progressCircle { width: 100%; height: 100%; }
+.progressSemicircle { width: 100%; height: 100%; }
+.progressArc { transition: stroke-dasharray 0.3s ease; }
 
 /* 计数器 */
 .counterElement {
@@ -573,4 +708,26 @@ const updateChart = () => {
   justify-content: center;
   font-variant-numeric: tabular-nums;
 }
+
+/* 倒计时 */
+.countdownElement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.countdownItem { display: flex; align-items: baseline; gap: 2px; }
+.countdownNum { font-variant-numeric: tabular-nums; font-weight: bold; }
+.countdownLabel { font-size: 0.7em; opacity: 0.7; }
+
+/* 列表 */
+.listElement { overflow: auto; }
+.listContainer { margin: 0; padding-left: 20px; }
+.listItem { margin: 4px 0; }
+.listCheck { margin-right: 8px; font-weight: bold; }
+ul.listContainer { list-style-type: disc; }
+ol.listContainer { list-style-type: decimal; }
+
+/* 标签 */
+.tagElement { white-space: nowrap; }
 </style>

@@ -34,6 +34,25 @@ export function useElementOperations(
         width: 120, height: 60, counterValue: 1000, counterPrefix: '', counterSuffix: '',
         counterDecimals: 0, counterDuration: 2,
         style: { color: '#ffffff', fontSize: '32px', fontWeight: 'bold' }
+      },
+      countdown: {
+        width: 200, height: 50,
+        countdownTarget: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        countdownFormat: 'dhms',
+        style: { color: '#ffffff', fontSize: '20px' }
+      },
+      list: {
+        width: 200, height: 120,
+        listType: 'unordered',
+        listItems: ['项目一', '项目二', '项目三'],
+        style: { color: '#ffffff', fontSize: '14px' }
+      },
+      tag: {
+        width: 80, height: 28,
+        tagText: '标签',
+        tagColor: '#3b82f6',
+        tagVariant: 'solid',
+        style: { fontSize: '12px', borderRadius: '4px' }
       }
     }
     return defaults[type] || { width: 100, height: 100 }

@@ -1,6 +1,6 @@
 // 核心类型定义（框架无关）
 
-export type ElementType = 'text' | 'image' | 'shape' | 'chart' | 'video' | 'richtext' | 'button' | 'icon' | 'divider' | 'progress' | 'counter'
+export type ElementType = 'text' | 'image' | 'shape' | 'chart' | 'video' | 'richtext' | 'button' | 'icon' | 'divider' | 'progress' | 'counter' | 'countdown' | 'list' | 'tag'
 
 export type ShapeType =
   | 'rectangle' | 'circle' | 'triangle' | 'parallelogram' | 'diamond' | 'star' | 'hexagon'
@@ -177,6 +177,17 @@ export interface H5Element {
   // 图标配置
   iconName?: string
   iconColor?: string
+  // 倒计时配置
+  countdownTarget?: string  // ISO日期字符串
+  countdownFormat?: 'dhms' | 'hms' | 'ms' | 's'  // 显示格式
+  // 列表配置
+  listItems?: string[]
+  listType?: 'ordered' | 'unordered' | 'checklist'
+  listIconColor?: string
+  // 标签配置
+  tagText?: string
+  tagColor?: string
+  tagVariant?: 'solid' | 'outline' | 'light'
 }
 
 export interface H5Page {

@@ -259,7 +259,10 @@ const COMPONENT_GROUPS = [
   { title: "数据", items: [
     { type: 'progress', icon: '📶', label: "进度条" },
     { type: 'counter', icon: '🔢', label: "计数器" },
+    { type: 'countdown', icon: '⏱️', label: "倒计时" },
     { type: 'chart', icon: '📊', label: "图表" },
+    { type: 'list', icon: '📋', label: "列表" },
+    { type: 'tag', icon: '🏷️', label: "标签" },
   ]},
   { title: "媒体", items: [{ type: 'video', icon: '🎬', label: "视频" }]},
 ]

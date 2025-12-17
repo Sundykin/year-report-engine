@@ -112,6 +112,36 @@
       @show-transform-modal="$emit('show-chart-transform-modal')"
     />
 
+    <ProgressProperties
+      v-if="selectedElement.type === 'progress'"
+      :element="selectedElement"
+      :disabled="selectedElement.locked"
+    />
+
+    <CounterProperties
+      v-if="selectedElement.type === 'counter'"
+      :element="selectedElement"
+      :disabled="selectedElement.locked"
+    />
+
+    <CountdownProperties
+      v-if="selectedElement.type === 'countdown'"
+      :element="selectedElement"
+      :disabled="selectedElement.locked"
+    />
+
+    <ListProperties
+      v-if="selectedElement.type === 'list'"
+      :element="selectedElement"
+      :disabled="selectedElement.locked"
+    />
+
+    <TagProperties
+      v-if="selectedElement.type === 'tag'"
+      :element="selectedElement"
+      :disabled="selectedElement.locked"
+    />
+
     <StyleEffectsProperties
       v-if="['text', 'richtext', 'image', 'video', 'shape', 'button'].includes(selectedElement.type)"
       :element="selectedElement"
@@ -130,6 +160,11 @@ import RichTextProperties from './properties/RichTextProperties.vue'
 import ImageVideoProperties from './properties/ImageVideoProperties.vue'
 import ShapeProperties from './properties/ShapeProperties.vue'
 import ChartProperties from './properties/ChartProperties.vue'
+import ProgressProperties from './properties/ProgressProperties.vue'
+import CounterProperties from './properties/CounterProperties.vue'
+import CountdownProperties from './properties/CountdownProperties.vue'
+import ListProperties from './properties/ListProperties.vue'
+import TagProperties from './properties/TagProperties.vue'
 import BackgroundUpload from './properties/BackgroundUpload.vue'
 import BackgroundGradient from './properties/BackgroundGradient.vue'
 import StyleEffectsProperties from './properties/StyleEffectsProperties.vue'
