@@ -241,11 +241,22 @@ const elementStyle = computed(() => {
   return style
 })
 
-const contentStyle = computed(() => ({
-  width: '100%',
-  height: '100%',
-  ...props.element.style
-}))
+const contentStyle = computed(() => {
+  const style: any = {
+    width: '100%',
+    height: '100%',
+    ...props.element.style
+  }
+  // 处理翻转
+  const scaleX = props.element.style?.scaleX
+  const scaleY = props.element.style?.scaleY
+  if (scaleX !== undefined || scaleY !== undefined) {
+    style.transform = `scale(${scaleX ?? 1}, ${scaleY ?? 1})`
+    delete style.scaleX
+    delete style.scaleY
+  }
+  return style
+})
 
 // 按钮样式
 const buttonStyle = computed(() => {
@@ -457,17 +468,23 @@ const updateChart = () => {
 <style scoped>
 .shape-rectangle { border-radius: 0; }
 .shape-circle { border-radius: 50%; }
-.shape-triangle {
-  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-}
+.shape-triangle { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
 .shape-parallelogram { transform: skewX(-20deg); }
 .shape-diamond { transform: rotate(45deg); border-radius: 8%; }
-.shape-star {
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-}
-.shape-hexagon {
-  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-}
+.shape-star { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+.shape-hexagon { clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
+.shape-pentagon { clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); }
+.shape-octagon { clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%); }
+.shape-arrow { clip-path: polygon(0% 20%, 60% 20%, 60% 0%, 100% 50%, 60% 100%, 60% 80%, 0% 80%); }
+.shape-arrowLeft { clip-path: polygon(40% 0%, 40% 20%, 100% 20%, 100% 80%, 40% 80%, 40% 100%, 0% 50%); }
+.shape-arrowUp { clip-path: polygon(50% 0%, 100% 40%, 80% 40%, 80% 100%, 20% 100%, 20% 40%, 0% 40%); }
+.shape-arrowDown { clip-path: polygon(20% 0%, 80% 0%, 80% 60%, 100% 60%, 50% 100%, 0% 60%, 20% 60%); }
+.shape-bubble { clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 75% 75%, 50% 100%, 50% 75%, 0% 75%); }
+.shape-bubbleLeft { clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 25% 100%, 25% 75%, 0% 50%, 25% 25%); }
+.shape-badge { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+.shape-ribbon { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 80%, 0% 100%); }
+.shape-cross { clip-path: polygon(35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%, 0% 35%, 35% 35%); }
+.shape-heart { clip-path: polygon(50% 15%, 60% 0%, 80% 0%, 100% 15%, 100% 35%, 50% 100%, 0% 35%, 0% 15%, 20% 0%, 40% 0%); }
 
 .richtext-content :deep(p),
 .richtext-content :deep(li) {

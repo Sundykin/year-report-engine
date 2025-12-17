@@ -112,6 +112,12 @@
       @show-transform-modal="$emit('show-chart-transform-modal')"
     />
 
+    <StyleEffectsProperties
+      v-if="['text', 'richtext', 'image', 'video', 'shape', 'button'].includes(selectedElement.type)"
+      :element="selectedElement"
+      :disabled="selectedElement.locked"
+    />
+
     <button @click="$emit('delete-element')" class="deleteBtn" :disabled="selectedElement.locked">🗑️ 删除组件</button>
   </template>
 </template>
@@ -126,6 +132,7 @@ import ShapeProperties from './properties/ShapeProperties.vue'
 import ChartProperties from './properties/ChartProperties.vue'
 import BackgroundUpload from './properties/BackgroundUpload.vue'
 import BackgroundGradient from './properties/BackgroundGradient.vue'
+import StyleEffectsProperties from './properties/StyleEffectsProperties.vue'
 
 interface Props {
   project: ProjectData

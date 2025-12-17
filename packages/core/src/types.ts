@@ -2,7 +2,12 @@
 
 export type ElementType = 'text' | 'image' | 'shape' | 'chart' | 'video' | 'richtext' | 'button' | 'icon' | 'divider' | 'progress' | 'counter'
 
-export type ShapeType = 'rectangle' | 'circle' | 'triangle' | 'parallelogram' | 'diamond' | 'star' | 'hexagon'
+export type ShapeType =
+  | 'rectangle' | 'circle' | 'triangle' | 'parallelogram' | 'diamond' | 'star' | 'hexagon'
+  | 'arrow' | 'arrowLeft' | 'arrowUp' | 'arrowDown'
+  | 'bubble' | 'bubbleLeft'
+  | 'badge' | 'ribbon'
+  | 'cross' | 'heart' | 'pentagon' | 'octagon'
 
 export type ChartType = 'bar' | 'line' | 'pie'
 
@@ -21,6 +26,7 @@ export type ProgressType = 'line' | 'circle' | 'semicircle'
 // 动画触发时机
 export type AnimationTrigger =
   | 'onEnter'        // 页面进入时
+  | 'onExit'         // 页面退出时
   | 'afterPrevious'  // 上一动画结束后
   | 'withPrevious'   // 与上一动画同时
   | 'onClick'        // 点击触发
@@ -60,6 +66,24 @@ export interface CSSStyle {
   textAlign?: 'left' | 'center' | 'right'
   opacity?: number
   transform?: string
+  // 描边
+  border?: string
+  borderWidth?: string
+  borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none'
+  borderColor?: string
+  // 阴影
+  boxShadow?: string
+  textShadow?: string
+  // 滤镜
+  filter?: string
+  // 渐变背景
+  backgroundImage?: string
+  backgroundClip?: string
+  WebkitBackgroundClip?: string
+  WebkitTextFillColor?: string
+  // 图片翻转
+  scaleX?: number
+  scaleY?: number
   [key: string]: any
 }
 
