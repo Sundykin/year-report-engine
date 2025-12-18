@@ -74,9 +74,9 @@ const fieldValues = computed(() => {
     values[field.field] = getFieldValue(field, props.model)
   }
   // 调试日志
-  if (props.group.title?.includes('状态')) {
-    console.log('[FormGroup] fieldValues computed:', values, 'model.locked:', props.model?.locked)
-  }
+  // if (props.group.title?.includes('状态')) {
+  //   console.log('[FormGroup] fieldValues computed:', values, 'model.locked:', props.model?.locked)
+  // }
   return values
 })
 

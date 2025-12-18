@@ -118,13 +118,13 @@ const handleTest = async (id: string) => {
         headers: source.asyncConfig.headers,
         body: source.asyncConfig.body
       })
-      console.log('测试成功:', response)
+      // console.log('测试成功:', response)
       // 这里可以显示成功提示
-      alert('连接测试成功！')
+      // alert('连接测试成功！')
     } catch (error: any) {
-      console.error('测试失败:', error)
+      // console.error('测试失败:', error)
       // 这里可以显示错误提示
-      alert(`连接测试失败: ${error.message}`)
+      // alert(`连接测试失败: ${error.message}`)
     }
   }
 }

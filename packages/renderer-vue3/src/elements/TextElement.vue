@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, inject, type Ref } from 'vue'
 import { resolveContent } from '@year-report/core'
 import type { ElementComponentProps } from './types'
 
@@ -13,18 +13,24 @@ const props = withDefaults(defineProps<ElementComponentProps>(), {
   mode: 'render'
 })
 
+// 注入数据版本号，用于触发重新计算
+const dataVersion = inject<Ref<number>>('dataVersion', { value: 0 } as Ref<number>)
+
 const resolvedContent = computed(() => {
+  // 依赖 dataVersion 触发重新计算
+  void dataVersion.value
+
   const content = props.element.content || ''
   if (props.mode === 'design' || !props.dataBindingManager) {
     return content
   }
   // 支持渲染函数和插值语法
-  const sources = props.dataBindingManager.getDataSources()
-  const cache = props.dataBindingManager.getDataCache()
-  console.log('[TextElement] 插值解析:', { content, sources, cache: Object.fromEntries(cache) })
-  const result = resolveContent(props.element, content, sources, cache)
-  console.log('[TextElement] 解析结果:', result)
-  return result
+  return resolveContent(
+    props.element,
+    content,
+    props.dataBindingManager.getDataSources(),
+    props.dataBindingManager.getDataCache()
+  )
 })
 
 const contentStyle = computed(() => ({

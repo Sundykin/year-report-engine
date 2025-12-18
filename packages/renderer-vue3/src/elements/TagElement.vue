@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, inject, type Ref } from 'vue'
 import { resolveContent } from '@year-report/core'
 import type { ElementComponentProps } from './types'
 
@@ -13,12 +13,14 @@ const props = withDefaults(defineProps<ElementComponentProps>(), {
   mode: 'render'
 })
 
+const dataVersion = inject<Ref<number>>('dataVersion', { value: 0 } as Ref<number>)
+
 const resolvedText = computed(() => {
+  void dataVersion.value
   const text = props.element.tagText || '标签'
   if (props.mode === 'design' || !props.dataBindingManager) {
     return text
   }
-  // 支持渲染函数和插值语法
   return resolveContent(
     props.element,
     text,

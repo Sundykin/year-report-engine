@@ -334,7 +334,7 @@ const selectedElement = computed(() => activePage.value.elements.find(e => e.id 
 
 // 选择元素（支持多选）
 const selectElement = (id: string | null, multiSelect = false) => {
-  console.log('[selectElement] id:', id, 'multiSelect:', multiSelect)
+  // console.log('[selectElement] id:', id, 'multiSelect:', multiSelect)
   if (!id) {
     selectedGroupId.value = null
     selectedElementIds.value = []
@@ -343,10 +343,10 @@ const selectElement = (id: string | null, multiSelect = false) => {
   }
   // 检查元素是否在分组中
   const el = activePage.value.elements.find(e => e.id === id)
-  console.log('[selectElement] element:', el?.id, 'groupId:', el?.groupId)
+  // console.log('[selectElement] element:', el?.id, 'groupId:', el?.groupId)
   if (el?.groupId) {
     // 如果元素在分组中，应该选中分组而不是元素
-    console.log('[selectElement] element is in group, selecting group instead')
+    // console.log('[selectElement] element is in group, selecting group instead')
     selectGroup(el.groupId)
     return
   }
@@ -369,7 +369,7 @@ const selectElement = (id: string | null, multiSelect = false) => {
 
 // 选择分组
 const selectGroup = (groupId: string) => {
-  console.log('[selectGroup] groupId:', groupId)
+  // console.log('[selectGroup] groupId:', groupId)
   selectedGroupId.value = groupId
   selectedElementIds.value = []
   selectedElementId.value = null

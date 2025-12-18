@@ -22,11 +22,11 @@ const props = defineProps<{
 }>()
 
 // 调试日志
-watch(() => props.value, (newVal, oldVal) => {
-  if (props.field.field === 'locked') {
-    console.log('[CheckboxInput] locked value changed:', oldVal, '->', newVal)
-  }
-}, { immediate: true })
+// watch(() => props.value, (newVal, oldVal) => {
+//   // if (props.field.field === 'locked') {
+//   //   // console.log('[CheckboxInput] locked value changed:', oldVal, '->', newVal)
+//   // }
+// }, { immediate: true })
 
 const emit = defineEmits<{
   'update:value': [value: boolean]
@@ -34,7 +34,7 @@ const emit = defineEmits<{
 
 const handleChange = (e: Event) => {
   const checked = (e.target as HTMLInputElement).checked
-  console.log('[CheckboxInput] handleChange:', props.field.field, checked)
+  // console.log('[CheckboxInput] handleChange:', props.field.field, checked)
   emit('update:value', checked)
 }
 </script>

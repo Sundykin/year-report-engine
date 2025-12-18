@@ -76,14 +76,14 @@ const isGroup = (item: FormSchema): item is FormGroupSchema => isGroupSchema(ite
 
 // 处理字段更新
 const handleFieldUpdate = (field: string, value: any) => {
-  console.log('[SchemaForm] handleFieldUpdate:', field, value, 'model before:', props.modelValue?.locked)
+  // console.log('[SchemaForm] handleFieldUpdate:', field, value, 'model before:', props.modelValue?.locked)
   // 找到对应的 schema
   const fieldSchema = findFieldSchema(props.schema, field)
   if (fieldSchema) {
     // 直接使用 props.modelValue 确保修改最新的对象
     setFieldValue(fieldSchema, props.modelValue, value)
   }
-  console.log('[SchemaForm] after setFieldVal, model.locked:', props.modelValue?.locked)
+  // console.log('[SchemaForm] after setFieldVal, model.locked:', props.modelValue?.locked)
   emit('change', field, value)
 }
 

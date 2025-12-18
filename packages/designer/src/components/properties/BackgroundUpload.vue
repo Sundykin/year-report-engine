@@ -249,12 +249,12 @@ const handleDefaultUpload = async (file: File) => {
 
 // 预览加载成功
 const onPreviewLoad = () => {
-  console.log('预览加载成功')
+  // console.log('预览加载成功')
 }
 
 // 预览加载失败
 const onPreviewError = () => {
-  console.error('预览加载失败')
+  // console.error('预览加载失败')
 }
 </script>
 

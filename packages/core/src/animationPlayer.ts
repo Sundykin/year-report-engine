@@ -52,7 +52,7 @@ export class AnimationPlayer {
 
       const duration = anim.duration * 1000
 
-      console.log(`[AnimationPlayer] Adding animation ${index}: type=${anim.type}, position=${position}, duration=${duration}`)
+      // console.log(`[AnimationPlayer] Adding animation ${index}: type=${anim.type}, position=${position}, duration=${duration}`)
 
       if (anim.type === 'custom' && anim.keyframes && anim.keyframes.length > 0) {
         this.addKeyframeAnimation(element, anim, position)
@@ -61,7 +61,7 @@ export class AnimationPlayer {
       }
     })
 
-    console.log('[AnimationPlayer] Timeline created, total animations:', sortedAnims.length)
+    // console.log('[AnimationPlayer] Timeline created, total animations:', sortedAnims.length)
 
     // 显式播放时间线
     this.timeline.play()
@@ -85,7 +85,7 @@ export class AnimationPlayer {
       ease: this.convertEasing(anim.easing || 'ease')
     }
 
-    console.log(`[AnimationPlayer] addPresetAnimation:`, anim.type, animParams, 'at position:', position)
+    // console.log(`[AnimationPlayer] addPresetAnimation:`, anim.type, animParams, 'at position:', position)
 
     this.timeline.add(element, animParams, position)
   }
