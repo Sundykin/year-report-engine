@@ -24,7 +24,10 @@
 Year Report Engine 是一个功能强大的企业级解决方案，用于创建精美的 H5 年度报告和交互式演示文稿。它提供了完整的可视化设计系统，包含拖拽式编辑器和多框架渲染器，可无缝集成到 Vue 2、Vue 3 和 React 应用中。
 
 <!-- SCREENSHOT_PLACEHOLDER: 在此添加设计器截图 -->
-<!-- ![设计器截图](./assets/screenshots/designer.png) -->
+![设计器截图](./examples/screenshots/ScreenShot_2025-12-18_235857_440.png)
+
+
+![设计器截图](./examples/screenshots/ScreenShot_2025-12-19_000020_059.png)
 
 ## 核心特性
 
@@ -79,7 +82,7 @@ Year Report Engine 是一个功能强大的企业级解决方案，用于创建�
 <!-- DEMO_GIF_PLACEHOLDER: 在此添加演示 GIF -->
 <!-- ![演示](./assets/demo.gif) -->
 
-**在线演示：** 即将推出
+**在线演示：** [演示地址](https://sundykin.github.io/year-report-engine/ "演示地址")
 
 ## 快速开始
 

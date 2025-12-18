@@ -24,7 +24,10 @@
 Year Report Engine is a powerful, enterprise-grade solution for creating stunning H5 annual reports and interactive presentations. It provides a complete visual design system with a drag-and-drop editor and multi-framework renderers that work seamlessly across Vue 2, Vue 3, and React applications.
 
 <!-- SCREENSHOT_PLACEHOLDER: Add designer screenshot here -->
-<!-- ![Designer Screenshot](./assets/screenshots/designer.png) -->
+![screenshot](./examples/screenshots/ScreenShot_2025-12-18_235857_440.png)
+
+
+![screenshot](./examples/screenshots/ScreenShot_2025-12-19_000020_059.png)
 
 ## Features
 
@@ -78,7 +81,7 @@ Year Report Engine is a powerful, enterprise-grade solution for creating stunnin
 <!-- DEMO_GIF_PLACEHOLDER: Add demo GIF here -->
 <!-- ![Demo](./assets/demo.gif) -->
 
-**Live Demo:** Coming soon
+**Live Demo:** Coming soon  [Live Demo](https://sundykin.github.io/year-report-engine/ "Live Demo")
 
 ## Quick Start
 
