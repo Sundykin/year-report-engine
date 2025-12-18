@@ -1,6 +1,6 @@
 import type { Component } from 'vue'
 import TextElement from './TextElement.vue'
-import RichtextElement from './RichtextElement.vue'
+import RichtextElement from './RichTextElement.vue'
 import ImageElement from './ImageElement.vue'
 import IconElement from './IconElement.vue'
 import ButtonElement from './ButtonElement.vue'

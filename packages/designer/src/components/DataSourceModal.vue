@@ -68,7 +68,7 @@
             <div class="formGroup flex-2">
               <label>请求地址 <span class="required">*</span></label>
               <input
-                v-model="formData.asyncConfig.url"
+                v-model="formData.asyncConfig!.url"
                 type="url"
                 class="input"
                 placeholder="https://api.example.com/data"
@@ -78,7 +78,7 @@
 
             <div class="formGroup flex-1">
               <label>请求方法</label>
-              <select v-model="formData.asyncConfig.method" class="select">
+              <select v-model="formData.asyncConfig!.method" class="select">
                 <option value="GET">GET</option>
                 <option value="POST">POST</option>
                 <option value="PUT">PUT</option>
@@ -91,7 +91,7 @@
             <div class="formGroup flex-1">
               <label>刷新间隔（毫秒）</label>
               <input
-                v-model.number="formData.asyncConfig.refreshInterval"
+                v-model.number="formData.asyncConfig!.refreshInterval"
                 type="number"
                 class="input"
                 placeholder="0"
@@ -282,7 +282,7 @@ const testConnection = async () => {
   testResult.value = null
 
   try {
-    const _response = await props.requestAdapter({
+    await props.requestAdapter({
       url: formData.value.asyncConfig!.url!,
       method: formData.value.asyncConfig!.method,
       headers: formData.value.asyncConfig!.headers,
@@ -315,7 +315,7 @@ const handleConfirm = () => {
   const source: DataSource = {
     id: formData.value.id || generateId(),
     name: formData.value.name || '未命名数据源',
-    type: formData.value.type,
+    type: formData.value.type || 'static',
     staticData: formData.value.staticData,
     asyncConfig: formData.value.asyncConfig
   }

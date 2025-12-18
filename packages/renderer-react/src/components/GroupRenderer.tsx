@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { H5Element, DataBindingManager, CANVAS_WIDTH, CANVAS_HEIGHT } from '@year-report/core'
+import { H5Element, DataSourceManager, CANVAS_WIDTH, CANVAS_HEIGHT } from '@year-report/core'
 import { ElementRenderer } from './ElementRenderer'
 
 interface GroupBounds {
@@ -13,7 +13,7 @@ interface GroupRendererProps {
   elements: H5Element[]
   rotation: number
   onElementClick?: (element: H5Element) => void
-  dataBindingManager?: DataBindingManager | null
+  dataBindingManager?: DataSourceManager | null
 }
 
 export const GroupRenderer: React.FC<GroupRendererProps> = ({

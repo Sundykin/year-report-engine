@@ -131,6 +131,16 @@ export class DataSourceManager {
     return this.dataCache.get(sourceId)
   }
 
+  // 获取所有数据源
+  getDataSources(): DataSource[] {
+    return this.dataSources
+  }
+
+  // 获取数据缓存
+  getDataCache(): Map<string, any> {
+    return this.dataCache
+  }
+
   // 监听数据变化
   subscribe(listener: () => void): () => void {
     this.listeners.add(listener)

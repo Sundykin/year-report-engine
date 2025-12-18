@@ -25,7 +25,7 @@
               {{ expandedGroups.has(item.id) ? '▼' : '▶' }}
             </span>
             <span class="layerIcon">📦</span>
-            <span class="layerName">分组 ({{ item.children.length }})</span>
+            <span class="layerName">分组 ({{ item.children?.length || 0 }})</span>
           </div>
           <div v-if="expandedGroups.has(item.id)" class="groupChildren">
             <div

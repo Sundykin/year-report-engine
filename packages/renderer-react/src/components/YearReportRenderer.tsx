@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import 'animate.css'
 import { ElementRenderer } from './ElementRenderer'
 import { GroupRenderer } from './GroupRenderer'
-import { ProjectData, H5Page, H5Element, AnimationPlayer, AnimateCssScheduler, DataBindingManager } from '@year-report/core'
+import { ProjectData, H5Page, H5Element, DataSourceManager } from '@year-report/core'
 
 interface YearReportRendererProps {
   data: ProjectData
@@ -15,27 +15,24 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
   onPageChange,
   onElementClick
 }) => {
-  // 状态管理
   const [currentPageIndex, setCurrentPageIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [touchStart, setTouchStart] = useState(0)
   const [mouseStart, setMouseStart] = useState(0)
   const [isSwiping, setIsSwiping] = useState(false)
 
-  // 引用
   const audioRef = useRef<HTMLAudioElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const dataSourceManager = useRef<DataSourceManager | null>(null)
 
-  // 动画管理器
-  const animationPlayers = useRef<Map<number, AnimationPlayer[]>>(new Map())
-  const animateScheduler = useRef<AnimateCssScheduler | null>(null)
-  const dataBindingManager = useRef<DataBindingManager | null>(null)
-
-  // 初始化数据绑定
+  // 初始化数据源
   useEffect(() => {
-    if (data.dataSources) {
-      dataBindingManager.current = new DataBindingManager(data.dataSources)
-      dataBindingManager.current.init().catch(console.error)
+    if (data.dataSources?.length) {
+      dataSourceManager.current = new DataSourceManager()
+      dataSourceManager.current.setDataSources(data.dataSources)
+    }
+    return () => {
+      dataSourceManager.current?.destroy()
     }
   }, [data.dataSources])
 
@@ -46,10 +43,8 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
     }
   }, [data.backgroundMusic])
 
-  // 切换背景音乐
   const toggleMusic = useCallback(() => {
     if (!audioRef.current) return
-
     if (isPlaying) {
       audioRef.current.pause()
     } else {
@@ -58,12 +53,10 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
     setIsPlaying(!isPlaying)
   }, [isPlaying])
 
-  // 获取未分组元素
   const getUngroupedElements = useCallback((page: H5Page) => {
     return page.elements.filter(el => !el.groupId)
   }, [])
 
-  // 获取分组
   const getGroups = useCallback((page: H5Page) => {
     const groups: { [groupId: string]: H5Element[] } = {}
     page.elements.forEach(el => {
@@ -77,59 +70,12 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
     return groups
   }, [])
 
-  // 播放页面动画
-  const playPageAnimations = useCallback(async (pageIndex: number) => {
-    const page = data.pages[pageIndex]
-    if (!page) return
-
-    // 停止前一页动画
-    if (animationPlayers.current.has(pageIndex - 1)) {
-      const prevPlayers = animationPlayers.current.get(pageIndex - 1) || []
-      prevPlayers.forEach(player => player.stop())
-    }
-
-    // 播放当前页动画
-    const players: AnimationPlayer[] = []
-    const scheduler = animateScheduler.current = new AnimateCssScheduler()
-
-    // 收集所有动画
-    page.elements.forEach(element => {
-      if (element.animation) {
-        players.push(new AnimationPlayer(element, element.animation))
-      }
-      if (element.animations) {
-        element.animations.forEach(anim => {
-          players.push(new AnimationPlayer(element, anim))
-        })
-      }
-    })
-
-    // 根据触发时机排序并播放
-    const onEnterAnimations = players.filter(p =>
-      p.config.trigger === 'onEnter' || !p.config.trigger
-    )
-
-    for (const player of onEnterAnimations) {
-      const delay = player.config.delay || 0
-      scheduler.add(() => {
-        player.play()
-      }, delay * 1000)
-    }
-
-    scheduler.start()
-    animationPlayers.current.set(pageIndex, players)
-  }, [data.pages])
-
-  // 切换页面
   const goToPage = useCallback((index: number) => {
     if (index < 0 || index >= data.pages.length) return
-
     setCurrentPageIndex(index)
     onPageChange?.(index)
-    playPageAnimations(index)
-  }, [data.pages.length, onPageChange, playPageAnimations])
+  }, [data.pages.length, onPageChange])
 
-  // 触摸事件处理
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     setTouchStart(e.touches[0].clientY)
     setIsSwiping(true)
@@ -137,10 +83,8 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (!isSwiping) return
-
     const touchEnd = e.changedTouches[0].clientY
     const diff = touchStart - touchEnd
-
     if (Math.abs(diff) > 50) {
       if (diff > 0) {
         goToPage(currentPageIndex + 1)
@@ -148,11 +92,9 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
         goToPage(currentPageIndex - 1)
       }
     }
-
     setIsSwiping(false)
   }, [touchStart, isSwiping, currentPageIndex, goToPage])
 
-  // 鼠标事件处理
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setMouseStart(e.clientY)
     setIsSwiping(true)
@@ -160,10 +102,8 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
 
   const handleMouseUp = useCallback((e: React.MouseEvent) => {
     if (!isSwiping) return
-
     const mouseEnd = e.clientY
     const diff = mouseStart - mouseEnd
-
     if (Math.abs(diff) > 50) {
       if (diff > 0) {
         goToPage(currentPageIndex + 1)
@@ -171,14 +111,11 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
         goToPage(currentPageIndex - 1)
       }
     }
-
     setIsSwiping(false)
   }, [mouseStart, isSwiping, currentPageIndex, goToPage])
 
-  // 获取页面样式（支持渐变）
   const getPageStyle = useCallback((page: H5Page) => {
-    const style: any = {}
-
+    const style: React.CSSProperties = {}
     if (page.backgroundType === 'color') {
       style.backgroundColor = page.backgroundColor || '#ffffff'
     } else if (page.backgroundType === 'gradient' && page.backgroundGradient) {
@@ -196,42 +133,17 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
     } else {
       style.backgroundColor = page.backgroundColor || '#ffffff'
     }
-
     return style
   }, [])
 
-  // 元素点击处理
   const handleElementClick = useCallback((element: H5Element) => {
-    // 触发点击动画
-    if (element.animations) {
-      const clickAnimations = element.animations.filter(anim =>
-        anim.trigger === 'onClick'
-      )
-      clickAnimations.forEach(anim => {
-        const player = new AnimationPlayer(element, anim)
-        player.play()
-      })
-    }
-
     onElementClick?.(element)
   }, [onElementClick])
 
-  // 初始化第一页动画
-  useEffect(() => {
-    if (data.pages.length > 0) {
-      playPageAnimations(0)
-    }
-  }, [data.pages.length, playPageAnimations])
-
   return (
     <div className="fixedContainer" style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
-      {/* 背景音乐 */}
       {data.backgroundMusic && (
-        <audio
-          ref={audioRef}
-          src={data.backgroundMusic}
-          loop
-        />
+        <audio ref={audioRef} src={data.backgroundMusic} loop />
       )}
       {data.backgroundMusic && (
         <button
@@ -255,7 +167,6 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
         </button>
       )}
 
-      {/* 移动端容器 */}
       <div
         ref={containerRef}
         style={{
@@ -269,7 +180,6 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
       >
-        {/* 页面容器 */}
         <div
           style={{
             width: '100%',
@@ -294,7 +204,6 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
                   transform: `translateY(${index * 100}%)`
                 }}
               >
-                {/* 背景视频 */}
                 {page.backgroundType === 'video' && page.backgroundVideo && (
                   <video
                     src={page.backgroundVideo}
@@ -314,25 +223,23 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
                   />
                 )}
 
-                {/* 分组元素 */}
                 {Object.entries(groups).map(([groupId, elements]) => (
                   <GroupRenderer
                     key={groupId}
                     elements={elements}
                     rotation={page.groupRotations?.[groupId] || 0}
                     onElementClick={handleElementClick}
-                    dataBindingManager={dataBindingManager.current}
+                    dataBindingManager={dataSourceManager.current}
                   />
                 ))}
 
-                {/* 未分组元素 */}
                 {getUngroupedElements(page).map(element => (
                   <ElementRenderer
                     key={element.id}
                     element={element}
                     pageIndex={index}
                     onElementClick={handleElementClick}
-                    dataBindingManager={dataBindingManager.current}
+                    dataBindingManager={dataSourceManager.current}
                   />
                 ))}
               </div>
@@ -340,7 +247,6 @@ export const YearReportRenderer: React.FC<YearReportRendererProps> = ({
           })}
         </div>
 
-        {/* 页面指示器 */}
         <div
           style={{
             position: 'fixed',

@@ -196,7 +196,7 @@
 
     <!-- 转换函数编辑器模态框 -->
     <EditorModal v-model="showChartTransformModal" title="编辑转换函数">
-      <CodeEditor v-if="selectedElement?.dataBinding" v-model="selectedElement.dataBinding.transform" />
+      <CodeEditor v-if="selectedElement?.dataBinding?.transform !== undefined" v-model="selectedElement.dataBinding.transform" />
     </EditorModal>
 
     <!-- 文本渲染函数编辑器模态框 -->
@@ -248,23 +248,23 @@ import 'animate.css'
 
 const COMPONENT_GROUPS = [
   { title: "基础", items: [
-    { type: 'text', icon: '📝', label: "文本" },
-    { type: 'richtext', icon: '📄', label: "富文本" },
-    { type: 'image', icon: '🖼️', label: "图片" },
-    { type: 'shape', icon: '⬜', label: "形状" },
-    { type: 'button', icon: '🔘', label: "按钮" },
-    { type: 'icon', icon: '⭐', label: "图标" },
-    { type: 'divider', icon: '➖', label: "分割线" },
+    { type: 'text' as const, icon: '📝', label: "文本" },
+    { type: 'richtext' as const, icon: '📄', label: "富文本" },
+    { type: 'image' as const, icon: '🖼️', label: "图片" },
+    { type: 'shape' as const, icon: '⬜', label: "形状" },
+    { type: 'button' as const, icon: '🔘', label: "按钮" },
+    { type: 'icon' as const, icon: '⭐', label: "图标" },
+    { type: 'divider' as const, icon: '➖', label: "分割线" },
   ]},
   { title: "数据", items: [
-    { type: 'progress', icon: '📶', label: "进度条" },
-    { type: 'counter', icon: '🔢', label: "计数器" },
-    { type: 'countdown', icon: '⏱️', label: "倒计时" },
-    { type: 'chart', icon: '📊', label: "图表" },
-    { type: 'list', icon: '📋', label: "列表" },
-    { type: 'tag', icon: '🏷️', label: "标签" },
+    { type: 'progress' as const, icon: '📶', label: "进度条" },
+    { type: 'counter' as const, icon: '🔢', label: "计数器" },
+    { type: 'countdown' as const, icon: '⏱️', label: "倒计时" },
+    { type: 'chart' as const, icon: '📊', label: "图表" },
+    { type: 'list' as const, icon: '📋', label: "列表" },
+    { type: 'tag' as const, icon: '🏷️', label: "标签" },
   ]},
-  { title: "媒体", items: [{ type: 'video', icon: '🎬', label: "视频" }]},
+  { title: "媒体", items: [{ type: 'video' as const, icon: '🎬', label: "视频" }]},
 ]
 
 interface Props {
@@ -274,7 +274,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const { project: _, uploadAdapter, requestAdapter } = toRefs(props)
+const { uploadAdapter, requestAdapter } = toRefs(props)
 const emit = defineEmits<{
   'update:project': [project: ProjectData]
   'preview': []
@@ -393,8 +393,7 @@ const {
   syncAnimations,
   updateAnimations,
   previewAnimations,
-  updateKeyframePosition,
-  clearKeyframeSelection
+  updateKeyframePosition
 } = useAnimations(selectedElement, updateElement)
 const { addPage, deletePage, updatePage } = usePageOperations(project, activePageId)
 const {
@@ -409,11 +408,11 @@ const {
   handleToggleLock
 } = useContextMenu(project, activePageId, selectedElementId, updateElement)
 // 历史记录（撤销/重做）
-const { undo, redo, canUndo, canRedo, initSnapshot, saveSnapshotImmediate } = useHistory(project)
+const { undo, redo, canUndo, canRedo, initSnapshot } = useHistory(project)
 initSnapshot()
 
-const { guides, calcGuides, snapPosition, snapSize, snapGroupPosition, calcGroupGuides, snapGroupSize, clearGuides, getSnapPoints } = useSnapGuides(project, activePageId, CANVAS_WIDTH, CANVAS_HEIGHT)
-const { groupBounds, getGroupElements, createGroup, ungroup } = useGroupOperations(project, activePageId, selectedElementId, updateElement)
+const { guides, calcGuides, snapPosition, snapSize, snapGroupPosition, calcGroupGuides, snapGroupSize, clearGuides } = useSnapGuides(project, activePageId, CANVAS_WIDTH, CANVAS_HEIGHT)
+const { groupBounds, getGroupElements, ungroup } = useGroupOperations(project, activePageId, selectedElementId, updateElement)
 const { alignElements, distributeElements } = useAlignment(project, activePageId, selectedElementIds, CANVAS_WIDTH, CANVAS_HEIGHT, selectedGroupId)
 const { copyElements, copyStyle, paste, pasteStyle, cut } = useClipboard(project, activePageId, selectedElementIds, selectedElementId)
 
@@ -1127,7 +1126,8 @@ const handleExport = async () => {
 }
 
 // 元素拖拽更新（带吸附）
-const handleElementUpdate = (id: string, updates: Partial<H5Element> & { _resizeDir?: string; _rotation?: number; _anchorX?: number; _anchorY?: number }) => {
+type ElementUpdateWithMeta = Partial<H5Element> & { _resizeDir?: string; _rotation?: number; _anchorX?: number; _anchorY?: number }
+const handleElementUpdate = (id: string, updates: ElementUpdateWithMeta) => {
   const el = activePage.value.elements.find(e => e.id === id)
   if (!el) return
 

@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { AnimationConfig, H5Element } from '@year-report/core'
-import { ANIMATION_GROUPS, ANIMATION_TRIGGERS, EASING_FUNCTIONS } from '@year-report/core'
+import { ANIMATION_GROUPS } from '@year-report/core'
 import SimpleScrollView from './SimpleScrollView.vue'
 
 interface Props {
@@ -77,8 +77,6 @@ const emit = defineEmits<{
 }>()
 
 const animationGroups = ANIMATION_GROUPS
-const _triggers = ANIMATION_TRIGGERS
-const _easings = EASING_FUNCTIONS
 
 const selectedAnimIndex = ref(-1)
 const isPlaying = computed(() => !!props.previewingElement)
@@ -162,6 +160,10 @@ const startDragBar = (e: MouseEvent, index: number) => {
 watch(() => props.selectedElement, () => {
   selectedAnimIndex.value = -1
 })
+
+// 抑制未使用警告
+void emit
+void watch
 </script>
 
 <style scoped>

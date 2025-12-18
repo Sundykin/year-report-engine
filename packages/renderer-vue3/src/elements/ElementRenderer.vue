@@ -20,8 +20,8 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, watch, inject, type Ref, type Component } from 'vue'
-import type { H5Element, DataSourceManager, AnimateCssScheduler } from '@year-report/core'
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from '@year-report/core'
+import type { H5Element, DataSourceManager } from '@year-report/core'
+import { CANVAS_WIDTH, CANVAS_HEIGHT, AnimateCssScheduler } from '@year-report/core'
 import { getElementComponent } from './index'
 import type { RenderMode } from './types'
 
@@ -62,6 +62,11 @@ const isInVisibleArea = computed(() => {
 })
 
 const elementStyle = computed(() => {
+  // design 模式下由 ElementWrapper 处理定位
+  if (props.mode === 'design') {
+    return { width: '100%', height: '100%' }
+  }
+
   if (!isInVisibleArea.value) {
     return { display: 'none' }
   }
@@ -95,7 +100,10 @@ const registerAnimations = () => {
   if (!elementRef.value || !pageSchedulers?.value) return
 
   let scheduler = pageSchedulers.value.get(props.pageIndex)
-  if (!scheduler) return
+  if (!scheduler) {
+    scheduler = new AnimateCssScheduler()
+    pageSchedulers.value.set(props.pageIndex, scheduler)
+  }
 
   scheduler.unregisterElement(props.element.id)
 

@@ -180,7 +180,7 @@ interface Props {
   activePageId: string
   selectedElementIds: string[]
   zoom: number
-  rightTab: 'props' | 'animation' | 'data'
+  rightTab: 'props' | 'animation' | 'data' | 'layer'
   timelineCollapsed: boolean
   dataSourceCollapsed: boolean
   selectedElement?: H5Element

@@ -60,7 +60,7 @@ export const createAliyunOSSUploadAdapter = (_config: {
   // 注意：这里需要引入 ali-oss 包
   // import OSS from 'ali-oss'
 
-  return async ({ file, fileType, onProgress }) => {
+  return async (_params) => {
     // 实际实现需要使用 ali-oss SDK
     // const client = new OSS({
     //   region: config.region,
@@ -97,7 +97,7 @@ export const createTencentCOSUploadAdapter = (_config: {
   // 注意：这里需要引入 cos-js-sdk-v5 包
   // import COS from 'cos-js-sdk-v5'
 
-  return async ({ file, fileType, onProgress }) => {
+  return async (_params) => {
     // 实际实现需要使用腾讯云 COS SDK
     // const cos = new COS({
     //   SecretId: config.SecretId,

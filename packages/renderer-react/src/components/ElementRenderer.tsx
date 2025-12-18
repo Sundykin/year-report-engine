@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useMemo, useCallback } from 'react'
+import React, { useRef, useMemo, useCallback } from 'react'
 import * as echarts from 'echarts/core'
 import { BarChart, LineChart, PieChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, TitleComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import ReactECharts from 'echarts-for-react'
-import { H5Element, DataBindingManager, CANVAS_WIDTH, CANVAS_HEIGHT } from '@year-report/core'
+import { H5Element, DataSourceManager, CANVAS_WIDTH, CANVAS_HEIGHT } from '@year-report/core'
 
 // 注册ECharts组件
 echarts.use([BarChart, LineChart, PieChart, GridComponent, TooltipComponent, TitleComponent, CanvasRenderer])
@@ -13,7 +13,7 @@ interface ElementRendererProps {
   element: H5Element
   pageIndex: number
   onElementClick?: (element: H5Element) => void
-  dataBindingManager?: DataBindingManager | null
+  dataBindingManager?: DataSourceManager | null
 }
 
 export const ElementRenderer: React.FC<ElementRendererProps> = ({
@@ -273,7 +273,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({
             width: '100%',
             height: '100%'
           }}
-          renderer="canvas"
+          opts={{ renderer: 'canvas' }}
         />
       )}
     </div>

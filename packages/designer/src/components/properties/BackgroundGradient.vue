@@ -35,20 +35,20 @@
         <input
           type="color"
           :value="color.color"
-          @input="updateColor(index, $event.target.value)"
+          @input="updateColor(index, ($event.target as HTMLInputElement).value)"
           class="colorInput"
         />
         <input
           type="text"
           :value="color.color"
-          @input="updateColor(index, $event.target.value)"
+          @input="updateColor(index, ($event.target as HTMLInputElement).value)"
           class="colorText"
           placeholder="#000000"
         />
         <input
           type="text"
           :value="color.position || ''"
-          @input="updatePosition(index, $event.target.value)"
+          @input="updatePosition(index, ($event.target as HTMLInputElement).value)"
           class="positionInput"
           placeholder="0%"
         />
@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import type { H5Page } from '@year-report/core'
 
 interface Props {

@@ -85,7 +85,7 @@
             <div class="formGroup">
               <label>请求地址 <span class="required">*</span></label>
               <input
-                v-model="formData.asyncConfig.url"
+                v-model="formData.asyncConfig!.url"
                 type="url"
                 class="input"
                 placeholder="https://api.example.com/data"
@@ -98,7 +98,7 @@
               <div class="formGroup flex-1">
                 <label>请求方法</label>
                 <select
-                  v-model="formData.asyncConfig.method"
+                  v-model="formData.asyncConfig!.method"
                   class="select"
                   @change="debounceUpdate"
                 >
@@ -112,7 +112,7 @@
               <div class="formGroup flex-1">
                 <label>刷新间隔（毫秒）</label>
                 <input
-                  v-model.number="formData.asyncConfig.refreshInterval"
+                  v-model.number="formData.asyncConfig!.refreshInterval"
                   type="number"
                   class="input"
                   placeholder="0"
@@ -129,19 +129,19 @@
                 <button
                   class="actionBtn"
                   @click="showHeadersModal = true"
-                  :disabled="!formData.asyncConfig.headers"
+                  :disabled="!formData.asyncConfig?.headers"
                 >
-                  <span v-if="formData.asyncConfig.headers">编辑</span>
+                  <span v-if="formData.asyncConfig?.headers">编辑</span>
                   <span v-else>添加</span>
                 </button>
               </div>
-              <div v-if="formData.asyncConfig.headers" class="previewBox">
+              <div v-if="formData.asyncConfig?.headers" class="previewBox">
                 {{ Object.keys(formData.asyncConfig.headers).length }} 个请求头
               </div>
             </div>
 
             <div
-              v-if="['POST', 'PUT'].includes(formData.asyncConfig.method)"
+              v-if="['POST', 'PUT'].includes(formData.asyncConfig?.method || '')"
               class="formGroup"
             >
               <div class="labelWithAction">
@@ -149,13 +149,13 @@
                 <button
                   class="actionBtn"
                   @click="showBodyModal = true"
-                  :disabled="!formData.asyncConfig.body"
+                  :disabled="!formData.asyncConfig?.body"
                 >
-                  <span v-if="formData.asyncConfig.body">编辑</span>
+                  <span v-if="formData.asyncConfig?.body">编辑</span>
                   <span v-else>添加</span>
                 </button>
               </div>
-              <div v-if="formData.asyncConfig.body" class="previewBox">
+              <div v-if="formData.asyncConfig?.body" class="previewBox">
                 {{ typeof formData.asyncConfig.body === 'object'
                   ? `${Object.keys(formData.asyncConfig.body).length} 个字段`
                   : '字符串内容'
@@ -393,7 +393,7 @@ const updateSource = () => {
   const source: DataSource = {
     id: formData.value.id || generateId(),
     name: formData.value.name || '未命名数据源',
-    type: formData.value.type,
+    type: formData.value.type || 'static',
     staticData: formData.value.staticData,
     asyncConfig: formData.value.asyncConfig
   }

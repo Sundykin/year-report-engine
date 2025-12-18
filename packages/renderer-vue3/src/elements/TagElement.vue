@@ -1,15 +1,30 @@
 <template>
   <div class="tagElement" :style="tagStyle">
-    <slot>{{ element.tagText || '标签' }}</slot>
+    <slot>{{ resolvedText }}</slot>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { resolveContent } from '@year-report/core'
 import type { ElementComponentProps } from './types'
 
 const props = withDefaults(defineProps<ElementComponentProps>(), {
   mode: 'render'
+})
+
+const resolvedText = computed(() => {
+  const text = props.element.tagText || '标签'
+  if (props.mode === 'design' || !props.dataBindingManager) {
+    return text
+  }
+  // 支持渲染函数和插值语法
+  return resolveContent(
+    props.element,
+    text,
+    props.dataBindingManager.getDataSources(),
+    props.dataBindingManager.getDataCache()
+  )
 })
 
 const tagStyle = computed(() => {

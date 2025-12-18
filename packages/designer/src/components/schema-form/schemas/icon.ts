@@ -1,4 +1,4 @@
-import type { FormSchema } from '../types'
+import type { FormGroupSchema } from '../types'
 
 // 图标选项
 const ICON_OPTIONS = [
@@ -61,23 +61,20 @@ const ICON_OPTIONS = [
   { label: '💻 电脑', value: 'laptop' }
 ]
 
-export const iconSchema: FormSchema[] = [
+export const iconSchema: FormGroupSchema[] = [
   {
-    type: 'group',
     title: '图标设置',
     fields: [
       {
         field: 'iconName',
         label: '图标',
-        component: 'select',
-        props: {
-          options: ICON_OPTIONS
-        }
+        type: 'select',
+        options: ICON_OPTIONS
       },
       {
         field: 'iconColor',
         label: '颜色',
-        component: 'color'
+        type: 'color'
       }
     ]
   }

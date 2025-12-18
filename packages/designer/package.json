@@ -31,8 +31,7 @@
     "jszip": "^3.10.1",
     "lodash-es": "^4.17.21",
     "simplebar": "^6.3.3",
-    "simplebar-vue": "^2.4.2",
-    "vue": "^3.3.11"
+    "simplebar-vue": "^2.4.2"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",
@@ -40,6 +39,7 @@
     "@vueuse/core": "^10.7.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.8",
+     "vue": "^3.3.11",
     "vue-tsc": "^2.2.12"
   }
 }

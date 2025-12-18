@@ -1,11 +1,11 @@
 <template>
   <div class="richtextElement" :style="contentStyle" v-html="resolvedContent">
-    <slot />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { resolveContent } from '@year-report/core'
 import type { ElementComponentProps } from './types'
 
 const props = withDefaults(defineProps<ElementComponentProps>(), {
@@ -17,7 +17,13 @@ const resolvedContent = computed(() => {
   if (props.mode === 'design' || !props.dataBindingManager) {
     return content
   }
-  return props.dataBindingManager.resolve(content)
+  // 支持渲染函数和插值语法
+  return resolveContent(
+    props.element,
+    content,
+    props.dataBindingManager.getDataSources(),
+    props.dataBindingManager.getDataCache()
+  )
 })
 
 const contentStyle = computed(() => ({

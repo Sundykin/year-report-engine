@@ -70,9 +70,10 @@ const props = withDefaults(defineProps<Props>(), {
   isInGroup: false
 })
 
+type ElementUpdateWithMeta = Partial<H5Element> & { _resizeDir?: string; _rotation?: number; _anchorX?: number; _anchorY?: number }
 const emit = defineEmits<{
   select: [id: string, multiSelect: boolean]
-  update: [updates: Partial<H5Element>]
+  update: [updates: ElementUpdateWithMeta]
   contextmenu: [e: MouseEvent]
   dragend: []
 }>()

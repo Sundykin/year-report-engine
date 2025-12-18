@@ -224,6 +224,9 @@ importers:
       vite:
         specifier: ^5.0.8
         version: 5.4.21
+      vite-plugin-dts:
+        specifier: ^3.9.1
+        version: 3.9.1(rollup@4.53.3)(typescript@5.9.3)(vite@5.4.21)
       vue:
         specifier: ^3.3.11
         version: 3.5.25(typescript@5.9.3)
