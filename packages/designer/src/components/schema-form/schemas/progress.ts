@@ -1,5 +1,5 @@
 /**
- * 进度条组件 Schema 配置示例
+ * 进度条组件 Schema 配置
  */
 
 import type { FormSchema } from '../types'
@@ -7,7 +7,6 @@ import type { FormSchema } from '../types'
 export const progressSchema: FormSchema[] = [
   {
     title: '📶 进度条',
-    icon: '📶',
     fields: [
       {
         field: 'progressType',

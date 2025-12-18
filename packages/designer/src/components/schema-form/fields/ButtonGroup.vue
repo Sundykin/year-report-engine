@@ -1,7 +1,7 @@
 <template>
   <div class="buttonGroup">
     <button
-      v-for="opt in field.options"
+      v-for="opt in options"
       :key="opt.value"
       :class="{ active: value === opt.value }"
       :disabled="disabled || opt.disabled"
@@ -13,13 +13,16 @@
 </template>
 
 <script setup lang="ts">
-import type { FormFieldSchema } from '../types'
+import { computed } from 'vue'
+import type { FormFieldSchema, SelectOption } from '../types'
 
-defineProps<{
+const props = defineProps<{
   field: FormFieldSchema
   value: any
   disabled?: boolean
 }>()
+
+const options = computed(() => (props.field.options || []) as SelectOption[])
 
 const emit = defineEmits<{
   'update:value': [value: any]

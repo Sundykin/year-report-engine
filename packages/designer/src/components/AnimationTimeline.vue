@@ -77,8 +77,8 @@ const emit = defineEmits<{
 }>()
 
 const animationGroups = ANIMATION_GROUPS
-const triggers = ANIMATION_TRIGGERS
-const easings = EASING_FUNCTIONS
+const _triggers = ANIMATION_TRIGGERS
+const _easings = EASING_FUNCTIONS
 
 const selectedAnimIndex = ref(-1)
 const isPlaying = computed(() => !!props.previewingElement)

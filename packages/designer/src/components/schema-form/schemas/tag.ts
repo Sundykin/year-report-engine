@@ -1,5 +1,5 @@
 /**
- * 标签组件 Schema 配置示例
+ * 标签组件 Schema 配置
  */
 
 import type { FormSchema } from '../types'
@@ -7,7 +7,6 @@ import type { FormSchema } from '../types'
 export const tagSchema: FormSchema[] = [
   {
     title: '🏷️ 标签',
-    icon: '🏷️',
     fields: [
       { field: 'tagText', label: '标签文字', type: 'text', placeholder: '标签' },
       { field: 'tagColor', label: '颜色', type: 'color', grid: 1 },

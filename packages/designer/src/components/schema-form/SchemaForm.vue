@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+
 import type { FormSchema, FormFieldSchema, FormGroupSchema } from './types'
 import { isGroupSchema } from './types'
 import { useSchemaForm } from './useSchemaForm'

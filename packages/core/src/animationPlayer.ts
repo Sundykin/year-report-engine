@@ -1,4 +1,4 @@
-import { createTimeline, animate } from 'animejs'
+import { createTimeline } from 'animejs'
 import type { AnimationConfig } from './types'
 import { presetAnimations } from './presetAnimations'
 

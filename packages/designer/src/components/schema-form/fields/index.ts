@@ -12,6 +12,10 @@ import CheckboxInput from './CheckboxInput.vue'
 import RangeSlider from './RangeSlider.vue'
 import ButtonGroup from './ButtonGroup.vue'
 import DatetimeInput from './DatetimeInput.vue'
+import CodeEditorInput from './CodeEditorInput.vue'
+import RichTextEditorInput from './RichTextEditorInput.vue'
+import MultiSelectInput from './MultiSelectInput.vue'
+import FileUploadInput from './FileUploadInput.vue'
 
 // 注册所有内置控件
 export function registerBuiltinFields() {
@@ -24,6 +28,10 @@ export function registerBuiltinFields() {
   registerBuiltinField('range', RangeSlider)
   registerBuiltinField('button-group', ButtonGroup)
   registerBuiltinField('datetime', DatetimeInput)
+  registerBuiltinField('code-editor', CodeEditorInput)
+  registerBuiltinField('richtext-editor', RichTextEditorInput)
+  registerBuiltinField('multi-select', MultiSelectInput)
+  registerBuiltinField('file-upload', FileUploadInput)
 }
 
 // 导出所有控件组件
@@ -36,5 +44,9 @@ export {
   CheckboxInput,
   RangeSlider,
   ButtonGroup,
-  DatetimeInput
+  DatetimeInput,
+  CodeEditorInput,
+  RichTextEditorInput,
+  MultiSelectInput,
+  FileUploadInput
 }

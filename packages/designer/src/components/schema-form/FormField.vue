@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, inject } from 'vue'
+import { computed, inject } from 'vue'
 import type { FormFieldSchema } from './types'
 import { SCHEMA_FORM_KEY } from './useSchemaForm'
 import { getBuiltinField } from './useSchemaForm'

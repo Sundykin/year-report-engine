@@ -1,6 +1,6 @@
 // 工具函数
 
-import type { H5Element, AnimationConfig, CSSStyle } from './types'
+import type { AnimationConfig, CSSStyle } from './types'
 
 // 生成唯一ID
 export const generateId = (): string => {

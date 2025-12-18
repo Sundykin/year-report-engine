@@ -20,7 +20,7 @@
         <label class="inputLabel">背景颜色</label>
         <input
           :value="activePage.backgroundColor || '#ffffff'"
-          @input="updateBackgroundColor($event.target.value)"
+          @input="updateBackgroundColor(($event.target as HTMLInputElement).value)"
           type="color"
           class="colorInput"
         />
@@ -72,79 +72,25 @@
       🔒 元素已锁定
     </div>
 
-    <CommonProperties :element="selectedElement" />
-
-    <TextProperties
-      v-if="selectedElement.type === 'text'"
-      :element="selectedElement"
-      :data-sources="project.dataSources"
-      :disabled="selectedElement.locked"
-      @init-render-function="$emit('init-render-function')"
-      @update-data-sources="$emit('update-text-data-sources', $event)"
-      @show-render-modal="$emit('show-text-render-modal')"
-    />
-
-    <RichTextProperties
-      v-if="selectedElement.type === 'richtext'"
-      :element="selectedElement"
+    <!-- 通用属性 -->
+    <SchemaForm
+      :model-value="selectedElement"
+      :schema="commonSchema"
       :disabled="selectedElement.locked"
     />
 
-    <ImageVideoProperties
-      v-if="selectedElement.type === 'image' || selectedElement.type === 'video'"
-      :element="selectedElement"
-      :disabled="selectedElement.locked"
-      :upload-adapter="uploadAdapter"
-    />
-
-    <ShapeProperties
-      v-if="selectedElement.type === 'shape'"
-      :element="selectedElement"
+    <!-- 组件专属属性 -->
+    <SchemaForm
+      :model-value="selectedElement"
+      :schema="componentSchema"
       :disabled="selectedElement.locked"
     />
 
-    <ChartProperties
-      v-if="selectedElement.type === 'chart'"
-      :element="selectedElement"
-      :data-sources="project.dataSources"
-      :disabled="selectedElement.locked"
-      @update-data-sources="$emit('update-chart-data-sources', $event)"
-      @show-transform-modal="$emit('show-chart-transform-modal')"
-    />
-
-    <ProgressProperties
-      v-if="selectedElement.type === 'progress'"
-      :element="selectedElement"
-      :disabled="selectedElement.locked"
-    />
-
-    <CounterProperties
-      v-if="selectedElement.type === 'counter'"
-      :element="selectedElement"
-      :disabled="selectedElement.locked"
-    />
-
-    <CountdownProperties
-      v-if="selectedElement.type === 'countdown'"
-      :element="selectedElement"
-      :disabled="selectedElement.locked"
-    />
-
-    <ListProperties
-      v-if="selectedElement.type === 'list'"
-      :element="selectedElement"
-      :disabled="selectedElement.locked"
-    />
-
-    <TagProperties
-      v-if="selectedElement.type === 'tag'"
-      :element="selectedElement"
-      :disabled="selectedElement.locked"
-    />
-
-    <StyleEffectsProperties
-      v-if="['text', 'richtext', 'image', 'video', 'shape', 'button'].includes(selectedElement.type)"
-      :element="selectedElement"
+    <!-- 样式效果 -->
+    <SchemaForm
+      v-if="showStyleEffects"
+      :model-value="selectedElement"
+      :schema="styleEffectsSchema"
       :disabled="selectedElement.locked"
     />
 
@@ -153,21 +99,26 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import type { ProjectData, H5Page, H5Element, UploadAdapter } from '@year-report/core'
-import CommonProperties from './properties/CommonProperties.vue'
-import TextProperties from './properties/TextProperties.vue'
-import RichTextProperties from './properties/RichTextProperties.vue'
-import ImageVideoProperties from './properties/ImageVideoProperties.vue'
-import ShapeProperties from './properties/ShapeProperties.vue'
-import ChartProperties from './properties/ChartProperties.vue'
-import ProgressProperties from './properties/ProgressProperties.vue'
-import CounterProperties from './properties/CounterProperties.vue'
-import CountdownProperties from './properties/CountdownProperties.vue'
-import ListProperties from './properties/ListProperties.vue'
-import TagProperties from './properties/TagProperties.vue'
 import BackgroundUpload from './properties/BackgroundUpload.vue'
 import BackgroundGradient from './properties/BackgroundGradient.vue'
-import StyleEffectsProperties from './properties/StyleEffectsProperties.vue'
+import { SchemaForm, registerBuiltinFields } from './schema-form'
+import {
+  commonSchema,
+  progressSchema,
+  counterSchema,
+  countdownSchema,
+  tagSchema,
+  listSchema,
+  shapeSchema,
+  createTextSchema,
+  richtextSchema,
+  imageVideoSchema,
+  createChartSchema,
+  styleEffectsSchema
+} from './schema-form/schemas'
+import type { FormSchema } from './schema-form/types'
 
 interface Props {
   project: ProjectData
@@ -187,9 +138,54 @@ const emit = defineEmits<{
   'delete-element': []
 }>()
 
+// 注册内置控件
+onMounted(() => {
+  registerBuiltinFields()
+})
+
+// 是否显示样式效果
+const showStyleEffects = computed(() => {
+  if (!props.selectedElement) return false
+  return ['text', 'richtext', 'image', 'video', 'shape', 'button'].includes(props.selectedElement.type)
+})
+
+// 根据组件类型获取对应的 schema
+const componentSchema = computed<FormSchema[]>(() => {
+  if (!props.selectedElement) return []
+
+  const type = props.selectedElement.type
+  const dataSources = props.project.dataSources || []
+
+  switch (type) {
+    case 'text':
+      return createTextSchema(dataSources)
+    case 'richtext':
+      return richtextSchema
+    case 'image':
+    case 'video':
+      return imageVideoSchema
+    case 'shape':
+      return shapeSchema
+    case 'chart':
+      return createChartSchema(dataSources)
+    case 'progress':
+      return progressSchema
+    case 'counter':
+      return counterSchema
+    case 'countdown':
+      return countdownSchema
+    case 'list':
+      return listSchema
+    case 'tag':
+      return tagSchema
+    default:
+      return []
+  }
+})
+
 // 处理背景类型切换
 const handleBackgroundTypeChange = (type: string) => {
-  emit('update-page', { backgroundType: type })
+  emit('update-page', { backgroundType: type as 'color' | 'gradient' | 'image' | 'video' })
 }
 
 // 更新背景颜色

@@ -255,7 +255,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { DataSource } from '@year-report/core'
 import { generateId } from '@year-report/core'
 import JsonEditor from './JsonEditor.vue'

@@ -282,7 +282,7 @@ const testConnection = async () => {
   testResult.value = null
 
   try {
-    const response = await props.requestAdapter({
+    const _response = await props.requestAdapter({
       url: formData.value.asyncConfig!.url!,
       method: formData.value.asyncConfig!.method,
       headers: formData.value.asyncConfig!.headers,
