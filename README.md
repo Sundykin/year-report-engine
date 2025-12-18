@@ -27,7 +27,7 @@ Year Report Engine is a powerful, enterprise-grade solution for creating stunnin
 ![screenshot](./examples/screenshots/ScreenShot_2025-12-18_235857_440.png)
 
 
-![screenshot](./examples/screenshots/ScreenShot_2025-12-19_000020_059.png)
+<!-- ![screenshot](./examples/screenshots/ScreenShot_2025-12-19_000020_059.png) -->
 
 ## Features
 

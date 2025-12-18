@@ -27,7 +27,7 @@ Year Report Engine 是一个功能强大的企业级解决方案，用于创建�
 ![设计器截图](./examples/screenshots/ScreenShot_2025-12-18_235857_440.png)
 
 
-![设计器截图](./examples/screenshots/ScreenShot_2025-12-19_000020_059.png)
+<!-- ![设计器截图](./examples/screenshots/ScreenShot_2025-12-19_000020_059.png) -->
 
 ## 核心特性
 
