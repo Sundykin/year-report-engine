@@ -67,15 +67,22 @@
   </template>
 
   <template v-else>
-    <!-- 锁定提示 -->
-    <div v-if="selectedElement.locked" class="lockedTip">
-      🔒 元素已锁定
+    <!-- 锁定提示浮窗 -->
+    <div v-if="selectedElement.locked && showLockedTip" class="lockedTipFloat">
+      <span>🔒 元素已锁定，部分属性不可编辑</span>
+      <button class="closeTip" @click="showLockedTip = false">×</button>
     </div>
 
-    <!-- 通用属性 -->
+    <!-- 锁定控制（始终可用） -->
     <SchemaForm
       :model-value="selectedElement"
-      :schema="commonSchema"
+      :schema="lockSchema"
+    />
+
+    <!-- 位置尺寸（受锁定影响） -->
+    <SchemaForm
+      :model-value="selectedElement"
+      :schema="positionSchema"
       :disabled="selectedElement.locked"
     />
 
@@ -99,13 +106,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { ProjectData, H5Page, H5Element, UploadAdapter } from '@year-report/core'
 import BackgroundUpload from './properties/BackgroundUpload.vue'
 import BackgroundGradient from './properties/BackgroundGradient.vue'
 import { SchemaForm, registerBuiltinFields } from './schema-form'
 import {
-  commonSchema,
+  positionSchema,
+  lockSchema,
   progressSchema,
   counterSchema,
   countdownSchema,
@@ -137,6 +145,19 @@ const emit = defineEmits<{
   'show-chart-transform-modal': []
   'delete-element': []
 }>()
+
+// 锁定提示显示状态
+const showLockedTip = ref(false)
+
+// 元素变化时重置提示
+watch(() => props.selectedElement?.id, () => {
+  showLockedTip.value = true
+})
+
+// 锁定状态变化时显示提示
+watch(() => props.selectedElement?.locked, (locked) => {
+  if (locked) showLockedTip.value = true
+})
 
 // 注册内置控件
 onMounted(() => {
@@ -208,5 +229,7 @@ const updateBackgroundColor = (color: string) => {
 .deleteBtn { width: 100%; background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 8px; border-radius: 4px; font-size: 12px; border: none; cursor: pointer; margin-top: 8px; }
 .deleteBtn:hover { background: rgba(220, 38, 38, 0.2); }
 .deleteBtn:disabled { opacity: 0.5; cursor: not-allowed; }
-.lockedTip { padding: 12px; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 4px; color: #fbbf24; font-size: 12px; text-align: center; }
+.lockedTipFloat { position: fixed; top: 60px; right: 20px; z-index: 1000; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(251, 191, 36, 0.95); border-radius: 6px; color: #1a1a1a; font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.closeTip { background: none; border: none; color: #1a1a1a; font-size: 16px; cursor: pointer; padding: 0 4px; opacity: 0.7; }
+.closeTip:hover { opacity: 1; }
 </style>

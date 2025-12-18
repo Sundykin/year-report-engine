@@ -1,14 +1,19 @@
 <template>
   <div class="multiSelectWrapper">
     <select
+      ref="selectRef"
       multiple
-      :value="value || []"
       @change="handleChange"
       class="multiSelect"
       :size="field.props?.size || 4"
       :disabled="disabled"
     >
-      <option v-for="opt in options" :key="opt.value" :value="opt.value">
+      <option
+        v-for="opt in options"
+        :key="opt.value"
+        :value="opt.value"
+        :selected="isSelected(opt.value)"
+      >
         {{ opt.label }}
       </option>
     </select>
@@ -17,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import type { FormFieldSchema, SelectOption } from '../types'
 
 const props = defineProps<{
@@ -26,7 +31,11 @@ const props = defineProps<{
   disabled?: boolean
 }>()
 
+const selectRef = ref<HTMLSelectElement>()
 const options = computed(() => (props.field.options || []) as SelectOption[])
+const currentValue = computed(() => props.value || [])
+
+const isSelected = (val: any) => currentValue.value.includes(val)
 
 const emit = defineEmits<{
   'update:value': [value: (string | number)[]]
@@ -37,6 +46,18 @@ const handleChange = (e: Event) => {
   const values = Array.from(select.selectedOptions).map(opt => opt.value)
   emit('update:value', values)
 }
+
+// 同步选中状态
+const syncSelection = () => {
+  if (!selectRef.value) return
+  const opts = selectRef.value.options
+  for (let i = 0; i < opts.length; i++) {
+    opts[i].selected = currentValue.value.includes(opts[i].value)
+  }
+}
+
+watch(currentValue, syncSelection, { immediate: true })
+onMounted(syncSelection)
 </script>
 
 <style scoped>

@@ -20,9 +20,8 @@ export const textSchema: FormSchema[] = [
         valueGetter: (model: any) => model.renderFunction ? 'function' : 'content',
         valueSetter: (value: string, model: any) => {
           if (value === 'content') {
-            model.renderFunction = undefined
+            delete model.renderFunction
           } else if (!model.renderFunction) {
-            // 初始化渲染函数模板
             model.renderFunction = '(data) => `${data}`'
           }
         }
@@ -75,7 +74,7 @@ export function createTextSchema(dataSources: { id: string; name: string }[]): F
           valueGetter: (model: any) => model.renderFunction ? 'function' : 'content',
           valueSetter: (value: string, model: any) => {
             if (value === 'content') {
-              model.renderFunction = undefined
+              delete model.renderFunction
             } else if (!model.renderFunction) {
               model.renderFunction = '(data) => `${data}`'
             }

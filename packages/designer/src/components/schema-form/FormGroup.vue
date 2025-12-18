@@ -7,17 +7,16 @@
     </div>
     <div v-show="!collapsed" class="groupContent">
       <div class="fieldGrid" :style="{ gridTemplateColumns: `repeat(${columns}, 1fr)` }">
-        <template v-for="(field, idx) in group.fields" :key="idx">
-          <FormField
-            v-if="shouldShow(field)"
-            :field="field"
-            :model="model"
-            :disabled="isDisabled(field)"
-            :value="getValue(field)"
-            :style="{ gridColumn: `span ${field.grid || columns}` }"
-            @update="(val) => $emit('update', field.field, val)"
-          />
-        </template>
+        <FormField
+          v-for="(field, idx) in visibleFields"
+          :key="field.field + idx"
+          :field="field"
+          :model="model"
+          :disabled="isDisabled(field)"
+          :value="fieldValues[field.field]"
+          :style="{ gridColumn: `span ${field.grid || columns}` }"
+          @update="(val) => $emit('update', field.field, val)"
+        />
       </div>
     </div>
   </div>
@@ -63,14 +62,26 @@ const isVisible = computed(() => {
   return shouldShowField({ field: '', label: '', type: 'text', showWhen: props.group.showWhen }, props.model)
 })
 
-// 字段是否显示
-const shouldShow = (field: FormFieldSchema) => shouldShowField(field, props.model)
+// 可见字段列表（响应式）
+const visibleFields = computed(() =>
+  props.group.fields.filter(field => shouldShowField(field, props.model))
+)
+
+// 字段值映射（响应式）
+const fieldValues = computed(() => {
+  const values: Record<string, any> = {}
+  for (const field of props.group.fields) {
+    values[field.field] = getFieldValue(field, props.model)
+  }
+  // 调试日志
+  if (props.group.title?.includes('状态')) {
+    console.log('[FormGroup] fieldValues computed:', values, 'model.locked:', props.model?.locked)
+  }
+  return values
+})
 
 // 字段是否禁用
 const isDisabled = (field: FormFieldSchema) => isFieldDisabled(field, props.model, props.disabled)
-
-// 获取字段值
-const getValue = (field: FormFieldSchema) => getFieldValue(field, props.model)
 </script>
 
 <style scoped>

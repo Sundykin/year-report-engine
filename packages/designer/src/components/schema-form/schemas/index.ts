@@ -3,7 +3,7 @@
  */
 
 // 通用属性
-export { commonSchema } from './common'
+export { commonSchema, positionSchema, lockSchema } from './common'
 
 // 组件专属属性
 export { progressSchema } from './progress'

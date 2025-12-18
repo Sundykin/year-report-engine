@@ -21,7 +21,7 @@ export function useKeyboardEvents(
     const target = document.activeElement
     const isEditing = target?.tagName === 'INPUT' ||
                      target?.tagName === 'TEXTAREA' ||
-                     target?.isContentEditable ||
+                     (target as HTMLElement)?.isContentEditable ||
                      target?.closest('.cm-editor') ||
                      target?.closest('.w-e-text-container')
 

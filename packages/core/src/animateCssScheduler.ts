@@ -150,8 +150,6 @@ export class AnimateCssScheduler {
       return
     }
 
-    // 计算总时长
-    const _totalDuration = Math.max(...allAnimTasks.map(t => t.startTime + t.duration))
     let completedCount = 0
     const totalCount = allAnimTasks.length
 

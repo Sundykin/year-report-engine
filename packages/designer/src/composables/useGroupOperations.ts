@@ -104,6 +104,7 @@ export function useGroupOperations(
     )
 
     // 直接修改 project
+    // @ts-expect-error - project may be ComputedRef
     project.value = {
       ...project.value,
       pages: project.value.pages.map(p =>
@@ -122,6 +123,7 @@ export function useGroupOperations(
       el.groupId === groupId ? { ...el, groupId: undefined } : el
     )
 
+    // @ts-expect-error - project may be ComputedRef
     project.value = {
       ...project.value,
       pages: project.value.pages.map(p =>

@@ -12,20 +12,30 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from 'vue'
 import type { FormFieldSchema } from '../types'
 
-defineProps<{
+const props = defineProps<{
   field: FormFieldSchema
   value: any
   disabled?: boolean
 }>()
+
+// 调试日志
+watch(() => props.value, (newVal, oldVal) => {
+  if (props.field.field === 'locked') {
+    console.log('[CheckboxInput] locked value changed:', oldVal, '->', newVal)
+  }
+}, { immediate: true })
 
 const emit = defineEmits<{
   'update:value': [value: boolean]
 }>()
 
 const handleChange = (e: Event) => {
-  emit('update:value', (e.target as HTMLInputElement).checked)
+  const checked = (e.target as HTMLInputElement).checked
+  console.log('[CheckboxInput] handleChange:', props.field.field, checked)
+  emit('update:value', checked)
 }
 </script>
 

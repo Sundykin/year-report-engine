@@ -50,7 +50,7 @@ export const createDefaultUploadAdapter = (uploadUrl: string): UploadAdapter => 
 /**
  * 阿里云 OSS 上传适配器示例
  */
-export const createAliyunOSSUploadAdapter = (config: {
+export const createAliyunOSSUploadAdapter = (_config: {
   region: string
   accessKeyId: string
   accessKeySecret: string
@@ -88,7 +88,7 @@ export const createAliyunOSSUploadAdapter = (config: {
 /**
  * 腾讯云 COS 上传适配器示例
  */
-export const createTencentCOSUploadAdapter = (config: {
+export const createTencentCOSUploadAdapter = (_config: {
   SecretId: string
   SecretKey: string
   Bucket: string
