@@ -12,7 +12,6 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue'
 import type { FormFieldSchema } from '../types'
 
 const props = defineProps<{

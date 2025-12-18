@@ -50,9 +50,7 @@ export class AnimationPlayer {
         position = '<'
       }
 
-      const duration = anim.duration * 1000
-
-      // console.log(`[AnimationPlayer] Adding animation ${index}: type=${anim.type}, position=${position}, duration=${duration}`)
+      // console.log(`[AnimationPlayer] Adding animation ${index}: type=${anim.type}, position=${position}, duration=${anim.duration * 1000}`)
 
       if (anim.type === 'custom' && anim.keyframes && anim.keyframes.length > 0) {
         this.addKeyframeAnimation(element, anim, position)

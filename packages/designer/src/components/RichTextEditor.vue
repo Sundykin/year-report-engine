@@ -13,6 +13,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onBeforeUnmount, shallowRef, computed } from 'vue'
+// @ts-ignore
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import '@wangeditor/editor/dist/css/style.css'
 

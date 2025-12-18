@@ -112,7 +112,7 @@ const handleTest = async (id: string) => {
   const source = props.dataSources.find(s => s.id === id)
   if (source && source.type === 'async' && source.asyncConfig?.url && props.requestAdapter) {
     try {
-      const response = await props.requestAdapter({
+      await props.requestAdapter({
         url: source.asyncConfig.url,
         method: source.asyncConfig.method || 'GET',
         headers: source.asyncConfig.headers,
