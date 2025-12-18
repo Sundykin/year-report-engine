@@ -114,6 +114,7 @@ import { SchemaForm, registerBuiltinFields } from './schema-form'
 import {
   positionSchema,
   lockSchema,
+  iconSchema,
   progressSchema,
   counterSchema,
   countdownSchema,
@@ -199,6 +200,8 @@ const componentSchema = computed<FormSchema[]>(() => {
       return listSchema
     case 'tag':
       return tagSchema
+    case 'icon':
+      return iconSchema
     default:
       return []
   }

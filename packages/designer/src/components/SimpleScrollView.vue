@@ -1,27 +1,32 @@
 <template>
-  <simplebar :data-simplebar-auto-hide="false">
+  <div class="simpleScrollView">
     <slot />
-  </simplebar>
+  </div>
 </template>
 
-<script setup lang="ts">
-import simplebar from 'simplebar-vue'
-import 'simplebar-vue/dist/simplebar.min.css'
-</script>
+<style scoped>
+.simpleScrollView {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 
-<style>
-.simplebar-scrollbar::before {
+/* 自定义滚动条样式 */
+.simpleScrollView::-webkit-scrollbar {
+  width: 6px;
+}
+
+.simpleScrollView::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.simpleScrollView::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.simpleScrollView::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-}
-
-.simplebar-track.simplebar-vertical {
-  width: 8px;
-  right: 2px;
-}
-
-.simplebar-track.simplebar-horizontal {
-  height: 8px;
-  bottom: 2px;
 }
 </style>

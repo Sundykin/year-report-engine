@@ -6,6 +6,7 @@
 export { commonSchema, positionSchema, lockSchema } from './common'
 
 // 组件专属属性
+export { iconSchema } from './icon'
 export { progressSchema } from './progress'
 export { counterSchema } from './counter'
 export { countdownSchema } from './countdown'

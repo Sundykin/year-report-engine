@@ -44,6 +44,7 @@
             :element="el"
             :page-index="index"
             :is-active="index === currentIndex"
+            mode="render"
           />
 
           <!-- 分组元素 -->
@@ -73,10 +74,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, provide, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, provide, watch, nextTick } from 'vue'
 import type { ProjectData, RequestAdapter, H5Element, H5Page } from '@year-report/core'
 import { DataSourceManager, AnimateCssScheduler } from '@year-report/core'
-import ElementRenderer from './ElementRenderer.vue'
+import { ElementRenderer } from './elements'
 import GroupRenderer from './GroupRenderer.vue'
 import 'animate.css'
 
@@ -147,7 +148,7 @@ const isPlaying = ref(false)
 // 监听页面切换，播放动画
 watch(currentIndex, (newIndex, oldIndex) => {
   // 播放退出动画
-  if (oldIndex >= 0) {
+  if (oldIndex !== undefined && oldIndex >= 0) {
     const oldScheduler = pageSchedulers.value.get(oldIndex)
     oldScheduler?.playExitAnimations()
   }
@@ -160,7 +161,7 @@ watch(currentIndex, (newIndex, oldIndex) => {
     }, 100)
   })
 
-  prevIndex.value = oldIndex
+  prevIndex.value = oldIndex ?? -1
 }, { immediate: true })
 
 // 注入动画样式和初始化数据源

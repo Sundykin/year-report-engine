@@ -1,5 +1,7 @@
 import YearReportRenderer from './YearReportRenderer.vue'
-import ElementRenderer from './ElementRenderer.vue'
 
-export { YearReportRenderer, ElementRenderer }
+// 导出元素组件库
+export * from './elements'
+
+export { YearReportRenderer }
 export default YearReportRenderer

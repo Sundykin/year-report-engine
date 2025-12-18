@@ -92,12 +92,7 @@
                 @dragend="$emit('dragend')"
                 @contextmenu="$emit('context-menu', $event, el.id)"
               >
-                <div v-if="el.type === 'text'" class="textElement">{{ el.content }}</div>
-                <div v-else-if="el.type === 'richtext'" class="richTextElement" v-html="el.content" />
-                <img v-else-if="el.type === 'image'" :src="el.src" class="imageElement" alt="" />
-                <div v-else-if="el.type === 'shape'" class="shapeElement" :class="`shape-${el.shapeType || 'rectangle'}`" :style="el.style" />
-                <div v-else-if="el.type === 'video'" class="videoPlaceholder">🎬</div>
-                <div v-else-if="el.type === 'chart'" class="chartPlaceholder">📊 图表</div>
+                <ElementRenderer :element="el" mode="design" />
               </ElementWrapper>
 
               <!-- 分组边界（可交互） -->
@@ -172,6 +167,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { H5Page, H5Element, AnimationConfig, DataSource } from '@year-report/core'
+import { ElementRenderer } from '@year-report/renderer-vue3'
 import type { GroupBounds } from '../composables/useGroupOperations'
 import ElementWrapper from './ElementWrapper.vue'
 import GroupWrapper from './GroupWrapper.vue'
@@ -327,74 +323,6 @@ const getElementAnimClass = (el: H5Element) => {
 .collapseBtn:hover { color: white; }
 .expandTimelineBtn { position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: #0a0a0a; border: 1px solid #262626; border-right: none; color: #737373; padding: 8px 4px; cursor: pointer; font-size: 10px; writing-mode: vertical-rl; }
 .expandTimelineBtn:hover { color: white; background: #171717; }
-
-.textElement { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; white-space: pre-wrap; line-height: 1.2; }
-.richTextElement { width: 100%; height: 100%; overflow: auto; padding: 4px; }
-.imageElement { width: 100%; height: 100%; object-fit: cover; }
-.shapeElement { width: 100%; height: 100%; }
-
-.richTextElement :deep(p),
-.richTextElement :deep(li) {
-  white-space: pre-wrap;
-}
-
-.richTextElement :deep(blockquote) {
-  border-left: 8px solid #d0e5f2;
-  padding: 10px 10px;
-  margin: 10px 0;
-  background-color: #f1f1f1;
-}
-
-.richTextElement :deep(code) {
-  font-family: monospace;
-  background-color: #eee;
-  padding: 3px;
-  border-radius: 3px;
-}
-
-.richTextElement :deep(pre>code) {
-  display: block;
-  padding: 10px;
-}
-
-.richTextElement :deep(table) {
-  border-collapse: collapse;
-}
-
-.richTextElement :deep(td),
-.richTextElement :deep(th) {
-  border: 1px solid #ccc;
-  min-width: 50px;
-  height: 20px;
-  padding: 5px;
-}
-
-.richTextElement :deep(th) {
-  background-color: #f1f1f1;
-}
-
-.richTextElement :deep(ul),
-.richTextElement :deep(ol) {
-  padding-left: 20px;
-}
-
-.richTextElement :deep(input[type="checkbox"]) {
-  margin-right: 5px;
-}
-.shape-rectangle { border-radius: 0; }
-.shape-circle { border-radius: 50%; }
-.shape-triangle {
-  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-}
-.shape-parallelogram { transform: skewX(-20deg); }
-.shape-diamond { transform: rotate(45deg); border-radius: 8%; }
-.shape-star {
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-}
-.shape-hexagon {
-  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-}
-.videoPlaceholder, .chartPlaceholder { width: 100%; height: 100%; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; border: 1px dashed #404040; font-size: 12px; color: #737373; }
 
 .emptyTip { color: #737373; text-align: center; padding: 40px 20px; }
 

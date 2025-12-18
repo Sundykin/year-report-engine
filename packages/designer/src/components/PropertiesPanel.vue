@@ -24,30 +24,32 @@
     </div>
 
     <!-- 图层面板 -->
-    <div v-show="rightTab === 'layer'" class="layerPanelWrapper">
+    <div v-if="rightTab === 'layer'" class="panelWrapper">
       <slot name="layer-panel" />
     </div>
 
     <!-- 动画设置面板 -->
-    <div v-show="rightTab === 'animation'" class="animationPanel">
+    <div v-else-if="rightTab === 'animation'" class="panelWrapper animationPanel">
       <slot name="animation-panel" />
     </div>
 
     <!-- 属性面板 -->
-    <SimpleScrollView v-show="rightTab === 'props'" class="propertiesContent">
-      <slot name="properties-content" />
-    </SimpleScrollView>
+    <div v-else-if="rightTab === 'props'" class="panelWrapper">
+      <div class="propertiesContent">
+        <slot name="properties-content" />
+      </div>
+    </div>
 
     <!-- 数据面板 -->
-    <SimpleScrollView v-show="rightTab === 'data'" class="propertiesContent">
-      <slot name="data-panel" />
-    </SimpleScrollView>
+    <div v-else-if="rightTab === 'data'" class="panelWrapper">
+      <div class="propertiesContent">
+        <slot name="data-panel" />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import SimpleScrollView from './SimpleScrollView.vue'
-
 interface Props {
   rightTab: 'props' | 'animation' | 'data' | 'layer'
 }
@@ -73,8 +75,15 @@ defineEmits<{
 .rightTabBtn { flex: 1; background: transparent; border: none; color: #737373; font-size: 12px; padding: 10px 0; cursor: pointer; border-bottom: 2px solid transparent; }
 .rightTabBtn:hover { color: #a3a3a3; }
 .rightTabBtn.active { color: white; border-bottom-color: #3b82f6; }
-.dataPanel { flex: 1; overflow: hidden; }
-.propertiesContent { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 16px; }
-.animationPanel { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 12px; overflow-y: auto; }
-.layerPanelWrapper { flex: 1; overflow: hidden; }
+.panelWrapper { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+.panelWrapper::-webkit-scrollbar { width: 6px; }
+.panelWrapper::-webkit-scrollbar-track { background: transparent; }
+.panelWrapper::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+.panelWrapper::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+.propertiesContent { padding: 12px; display: flex; flex-direction: column; gap: 16px; }
+.animationPanel { padding: 12px; }
+.animationPanel::-webkit-scrollbar { width: 6px; }
+.animationPanel::-webkit-scrollbar-track { background: transparent; }
+.animationPanel::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+.animationPanel::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
 </style>

@@ -8,6 +8,7 @@
       :is-active="isActive"
       :offset-x="-bounds.x"
       :offset-y="-bounds.y"
+      mode="render"
     />
   </div>
 </template>
@@ -15,7 +16,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { H5Element } from '@year-report/core'
-import ElementRenderer from './ElementRenderer.vue'
+import { ElementRenderer } from './elements'
 
 interface GroupBounds {
   x: number

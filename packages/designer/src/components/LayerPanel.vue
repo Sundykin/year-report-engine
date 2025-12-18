@@ -247,12 +247,15 @@ const getIcon = (type?: string) => {
   return icons[type || ''] || '📦'
 }
 
+const typeNames: Record<string, string> = {
+  text: '文本', richtext: '富文本', image: '图片', shape: '形状',
+  video: '视频', chart: '图表', button: '按钮', icon: '图标',
+  divider: '分割线', progress: '进度条', counter: '计数器',
+  countdown: '倒计时', list: '列表', tag: '标签'
+}
+
 const getLabel = (el: LayerItem | H5Element) => {
-  if (el.type === 'text' || el.type === 'richtext') {
-    const text = (el as H5Element).content?.replace(/<[^>]*>/g, '') || ''
-    return text.slice(0, 10) || el.type
-  }
-  return el.type || '元素'
+  return typeNames[el.type || ''] || el.type || '元素'
 }
 
 const showContextMenu = (e: MouseEvent, id: string, type: 'element' | 'group') => {
@@ -280,7 +283,11 @@ const handleUngroup = () => {
 .layerPanel { display: flex; flex-direction: column; height: 100%; background: #1a1a1a; }
 .layerHeader { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; font-size: 12px; color: #888; border-bottom: 1px solid #333; }
 .layerCount { background: #333; padding: 2px 6px; border-radius: 10px; font-size: 10px; }
-.layerList { flex: 1; overflow-y: auto; }
+.layerList { flex: 1; min-height: 0; overflow-y: auto; }
+.layerList::-webkit-scrollbar { width: 6px; }
+.layerList::-webkit-scrollbar-track { background: transparent; }
+.layerList::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+.layerList::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
 
 .layerItem { display: flex; align-items: center; gap: 8px; padding: 6px 12px; cursor: pointer; border-bottom: 1px solid #262626; transition: background 0.15s; }
 .layerItem:hover { background: #262626; }
