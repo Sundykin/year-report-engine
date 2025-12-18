@@ -8,6 +8,7 @@
       :is-active="isActive"
       :offset-x="-bounds.x"
       :offset-y="-bounds.y"
+      :data-binding-manager="dataBindingManager"
       mode="render"
     />
   </div>
@@ -15,7 +16,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { H5Element } from '@year-report/core'
+import type { H5Element, DataSourceManager } from '@year-report/core'
 import { ElementRenderer } from './elements'
 
 interface GroupBounds {
@@ -31,6 +32,7 @@ interface Props {
   rotation: number
   pageIndex: number
   isActive: boolean
+  dataBindingManager?: DataSourceManager | null
 }
 
 const props = defineProps<Props>()

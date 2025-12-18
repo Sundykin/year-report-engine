@@ -44,6 +44,7 @@
             :element="el"
             :page-index="index"
             :is-active="index === currentIndex"
+            :data-binding-manager="dataManager"
             mode="render"
           />
 
@@ -56,6 +57,7 @@
             :rotation="page.groupRotations?.[group.groupId] || 0"
             :page-index="index"
             :is-active="index === currentIndex"
+            :data-binding-manager="dataManager"
           />
         </div>
       </div>

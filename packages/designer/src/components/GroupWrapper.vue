@@ -13,12 +13,7 @@
       class="groupElement"
       :style="getElementStyle(el)"
     >
-      <div v-if="el.type === 'text'" class="textElement" :style="el.style">{{ el.content }}</div>
-      <div v-else-if="el.type === 'richtext'" class="richTextElement" :style="el.style" v-html="el.content" />
-      <img v-else-if="el.type === 'image'" :src="el.src" class="imageElement" :style="el.style" alt="" />
-      <div v-else-if="el.type === 'shape'" class="shapeElement" :class="`shape-${el.shapeType || 'rectangle'}`" :style="el.style" />
-      <div v-else-if="el.type === 'video'" class="videoPlaceholder" :style="el.style">🎬</div>
-      <div v-else-if="el.type === 'chart'" class="chartPlaceholder" :style="el.style">📊 图表</div>
+      <ElementRenderer :element="el" mode="design" />
     </div>
 
     <!-- 选中时的控制点 -->
@@ -46,6 +41,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { H5Element } from '@year-report/core'
+import { ElementRenderer } from '@year-report/renderer-vue3'
 import type { GroupBounds } from '../composables/useGroupOperations'
 
 interface Props {
@@ -273,51 +269,6 @@ const startRotate = (e: MouseEvent) => {
 .groupElement {
   position: absolute;
   pointer-events: none;
-}
-
-.groupElement > * {
-  width: 100%;
-  height: 100%;
-}
-
-.textElement {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  white-space: pre-wrap;
-  line-height: 1.2;
-}
-
-.richTextElement {
-  overflow: auto;
-  padding: 4px;
-}
-
-.imageElement {
-  object-fit: cover;
-}
-
-.shapeElement {
-  width: 100%;
-  height: 100%;
-}
-
-.shape-rectangle { border-radius: 0; }
-.shape-circle { border-radius: 50%; }
-.shape-triangle { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
-.shape-parallelogram { transform: skewX(-20deg); }
-.shape-diamond { transform: rotate(45deg); border-radius: 8%; }
-.shape-star { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
-.shape-hexagon { clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
-
-.videoPlaceholder, .chartPlaceholder {
-  background: rgba(0,0,0,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed #404040;
-  font-size: 12px;
-  color: #737373;
 }
 
 .groupLabel {

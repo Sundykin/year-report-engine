@@ -19,12 +19,12 @@ const resolvedContent = computed(() => {
     return content
   }
   // 支持渲染函数和插值语法
-  return resolveContent(
-    props.element,
-    content,
-    props.dataBindingManager.getDataSources(),
-    props.dataBindingManager.getDataCache()
-  )
+  const sources = props.dataBindingManager.getDataSources()
+  const cache = props.dataBindingManager.getDataCache()
+  console.log('[TextElement] 插值解析:', { content, sources, cache: Object.fromEntries(cache) })
+  const result = resolveContent(props.element, content, sources, cache)
+  console.log('[TextElement] 解析结果:', result)
+  return result
 })
 
 const contentStyle = computed(() => ({
