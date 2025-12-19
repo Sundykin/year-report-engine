@@ -14,18 +14,11 @@
 <script setup lang="ts">
 import type { FormFieldSchema } from '../types'
 
-const props = defineProps<{
+defineProps<{
   field: FormFieldSchema
   value: any
   disabled?: boolean
 }>()
-
-// 调试日志
-// watch(() => props.value, (newVal, oldVal) => {
-//   // if (props.field.field === 'locked') {
-//   //   // console.log('[CheckboxInput] locked value changed:', oldVal, '->', newVal)
-//   // }
-// }, { immediate: true })
 
 const emit = defineEmits<{
   'update:value': [value: boolean]
