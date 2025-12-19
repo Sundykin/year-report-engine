@@ -24,7 +24,7 @@
 Year Report Engine is a powerful, enterprise-grade solution for creating stunning H5 annual reports and interactive presentations. It provides a complete visual design system with a drag-and-drop editor and multi-framework renderers that work seamlessly across Vue 2, Vue 3, and React applications.
 
 <!-- SCREENSHOT_PLACEHOLDER: Add designer screenshot here -->
-![screenshot](./examples/screenshots/ScreenShot_2025-12-18_235857_440.png)
+![screenshot](./examples/screenshots/view.gif)
 
 
 <!-- ![screenshot](./examples/screenshots/ScreenShot_2025-12-19_000020_059.png) -->
