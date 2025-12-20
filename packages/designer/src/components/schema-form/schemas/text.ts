@@ -5,6 +5,134 @@
 
 import type { FormSchema } from '../types'
 
+// 文本增强 Schema（描边、阴影、渐变）
+const textEffectsSchema: FormSchema[] = [
+  {
+    title: '🎨 文字效果',
+    collapsible: true,
+    defaultCollapsed: true,
+    fields: [
+      // 文字描边
+      {
+        field: 'textStroke.enabled',
+        label: '文字描边',
+        type: 'checkbox',
+        grid: 2
+      },
+      {
+        field: 'textStroke.width',
+        label: '宽度',
+        type: 'number',
+        min: 1,
+        max: 10,
+        step: 1,
+        grid: 1,
+        showWhen: (model: any) => model.textStroke?.enabled
+      },
+      {
+        field: 'textStroke.color',
+        label: '颜色',
+        type: 'color',
+        grid: 1,
+        showWhen: (model: any) => model.textStroke?.enabled
+      },
+      // 文字阴影
+      {
+        field: 'textShadow.enabled',
+        label: '文字阴影',
+        type: 'checkbox',
+        grid: 2
+      },
+      {
+        field: 'textShadow.offsetX',
+        label: 'X偏移',
+        type: 'number',
+        min: -20,
+        max: 20,
+        step: 1,
+        grid: 1,
+        showWhen: (model: any) => model.textShadow?.enabled
+      },
+      {
+        field: 'textShadow.offsetY',
+        label: 'Y偏移',
+        type: 'number',
+        min: -20,
+        max: 20,
+        step: 1,
+        grid: 1,
+        showWhen: (model: any) => model.textShadow?.enabled
+      },
+      {
+        field: 'textShadow.blur',
+        label: '模糊',
+        type: 'number',
+        min: 0,
+        max: 30,
+        step: 1,
+        grid: 1,
+        showWhen: (model: any) => model.textShadow?.enabled
+      },
+      {
+        field: 'textShadow.color',
+        label: '颜色',
+        type: 'color',
+        grid: 1,
+        showWhen: (model: any) => model.textShadow?.enabled
+      },
+      // 渐变填充
+      {
+        field: 'textGradient.enabled',
+        label: '渐变填充',
+        type: 'checkbox',
+        grid: 2
+      },
+      {
+        field: 'textGradient.type',
+        label: '类型',
+        type: 'select',
+        options: [
+          { label: '线性', value: 'linear' },
+          { label: '径向', value: 'radial' }
+        ],
+        grid: 2,
+        showWhen: (model: any) => model.textGradient?.enabled
+      },
+      {
+        field: 'textGradient.direction',
+        label: '方向',
+        type: 'select',
+        options: [
+          { label: '→ 向右', value: 'to right' },
+          { label: '← 向左', value: 'to left' },
+          { label: '↓ 向下', value: 'to bottom' },
+          { label: '↑ 向上', value: 'to top' },
+          { label: '↘ 右下', value: 'to bottom right' },
+          { label: '↙ 左下', value: 'to bottom left' },
+          { label: '↗ 右上', value: 'to top right' },
+          { label: '↖ 左上', value: 'to top left' },
+        ],
+        grid: 2,
+        showWhen: (model: any) => model.textGradient?.enabled && model.textGradient?.type === 'linear'
+      },
+      {
+        field: 'textGradient.colors[0]',
+        label: '起始色',
+        type: 'color',
+        grid: 1,
+        showWhen: (model: any) => model.textGradient?.enabled
+      },
+      {
+        field: 'textGradient.colors[1]',
+        label: '结束色',
+        type: 'color',
+        grid: 1,
+        showWhen: (model: any) => model.textGradient?.enabled
+      },
+    ]
+  }
+]
+
 export const textSchema: FormSchema[] = [
   {
     title: '✏️ 文本',
@@ -38,7 +166,8 @@ export const textSchema: FormSchema[] = [
         field: 'style.color',
         label: '颜色',
         type: 'color',
-        grid: 1
+        grid: 1,
+        showWhen: (model: any) => !model.textGradient?.enabled
       },
       {
         field: 'style.fontSize',
@@ -51,7 +180,8 @@ export const textSchema: FormSchema[] = [
         }
       },
     ]
-  }
+  },
+  ...textEffectsSchema
 ]
 
 /**
@@ -105,7 +235,8 @@ export function createTextSchema(dataSources: { id: string; name: string }[]): F
           field: 'style.color',
           label: '颜色',
           type: 'color',
-          grid: 1
+          grid: 1,
+          showWhen: (model: any) => !model.textGradient?.enabled
         },
         {
           field: 'style.fontSize',
@@ -118,6 +249,7 @@ export function createTextSchema(dataSources: { id: string; name: string }[]): F
           }
         },
       ]
-    }
+    },
+    ...textEffectsSchema
   ]
 }

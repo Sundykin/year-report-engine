@@ -1,6 +1,6 @@
 // 核心类型定义（框架无关）
 
-export type ElementType = 'text' | 'image' | 'shape' | 'chart' | 'video' | 'richtext' | 'button' | 'icon' | 'divider' | 'progress' | 'counter' | 'countdown' | 'list' | 'tag'
+export type ElementType = 'text' | 'image' | 'shape' | 'chart' | 'video' | 'richtext' | 'button' | 'icon' | 'divider' | 'progress' | 'counter' | 'countdown' | 'list' | 'tag' | 'table' | 'carousel'
 
 export type ShapeType =
   | 'rectangle' | 'circle' | 'triangle' | 'parallelogram' | 'diamond' | 'star' | 'hexagon'
@@ -188,6 +188,64 @@ export interface H5Element {
   tagText?: string
   tagColor?: string
   tagVariant?: 'solid' | 'outline' | 'light'
+  // 文本增强配置
+  textStroke?: {
+    enabled: boolean
+    width: number      // 描边宽度 px
+    color: string      // 描边颜色
+  }
+  textShadow?: {
+    enabled: boolean
+    offsetX: number    // X偏移 px
+    offsetY: number    // Y偏移 px
+    blur: number       // 模糊半径 px
+    color: string      // 阴影颜色
+  }
+  textGradient?: {
+    enabled: boolean
+    type: 'linear' | 'radial'
+    direction: string  // 角度或方向，如 '90deg', 'to right'
+    colors: string[]   // 渐变颜色数组
+  }
+  // 图片增强配置
+  imageFilters?: {
+    enabled: boolean
+    grayscale: number    // 灰度 0-100
+    blur: number         // 模糊 0-20 px
+    brightness: number   // 亮度 0-200 (100为原始)
+    contrast: number     // 对比度 0-200 (100为原始)
+    saturate: number     // 饱和度 0-200 (100为原始)
+  }
+  imageMask?: {
+    enabled: boolean
+    type: 'circle' | 'ellipse' | 'triangle' | 'diamond' | 'pentagon' | 'hexagon' | 'star' | 'heart' | 'custom'
+    customPath?: string  // 自定义 clip-path
+  }
+  imageFlip?: {
+    horizontal: boolean  // 水平翻转
+    vertical: boolean    // 垂直翻转
+  }
+  // 表格配置
+  tableColumns?: Array<{
+    key: string
+    title: string
+    width?: number
+  }>
+  tableData?: Array<Record<string, any>>
+  tableStriped?: boolean      // 斑马纹
+  tableBordered?: boolean     // 边框
+  tableHeaderBg?: string      // 表头背景色
+  tableHeaderColor?: string   // 表头文字颜色
+  // 轮播图配置
+  carouselItems?: Array<{
+    src: string
+    title?: string
+    link?: string
+  }>
+  carouselAutoplay?: boolean
+  carouselInterval?: number   // 轮播间隔(ms)
+  carouselIndicator?: 'dots' | 'numbers' | 'none'
+  carouselEffect?: 'slide' | 'fade'
 }
 
 export interface H5Page {

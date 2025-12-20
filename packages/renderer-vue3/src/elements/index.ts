@@ -13,6 +13,8 @@ import CountdownElement from './CountdownElement.vue'
 import ListElement from './ListElement.vue'
 import TagElement from './TagElement.vue'
 import DividerElement from './DividerElement.vue'
+import TableElement from './TableElement.vue'
+import CarouselElement from './CarouselElement.vue'
 import ElementRenderer from './ElementRenderer.vue'
 
 export * from './types'
@@ -32,7 +34,9 @@ const builtinElements: Record<string, Component> = {
   countdown: CountdownElement,
   list: ListElement,
   tag: TagElement,
-  divider: DividerElement
+  divider: DividerElement,
+  table: TableElement,
+  carousel: CarouselElement
 }
 
 // 组件注册表（包含内置和自定义组件）
@@ -75,5 +79,7 @@ export {
   CountdownElement,
   ListElement,
   TagElement,
-  DividerElement
+  DividerElement,
+  TableElement,
+  CarouselElement
 }

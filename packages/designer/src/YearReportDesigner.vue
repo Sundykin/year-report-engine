@@ -263,6 +263,10 @@ const COMPONENT_GROUPS = [
     { type: 'chart' as const, icon: '📊', label: "图表" },
     { type: 'list' as const, icon: '📋', label: "列表" },
     { type: 'tag' as const, icon: '🏷️', label: "标签" },
+    { type: 'table' as const, icon: '📑', label: "表格" },
+  ]},
+  { title: "交互", items: [
+    { type: 'carousel' as const, icon: '🎠', label: "轮播图" },
   ]},
   { title: "媒体", items: [{ type: 'video' as const, icon: '🎬', label: "视频" }]},
 ]

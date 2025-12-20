@@ -125,7 +125,9 @@ import {
   richtextSchema,
   imageVideoSchema,
   createChartSchema,
-  styleEffectsSchema
+  styleEffectsSchema,
+  tableSchema,
+  carouselSchema
 } from './schema-form/schemas'
 import type { FormSchema } from './schema-form/types'
 
@@ -202,6 +204,10 @@ const componentSchema = computed<FormSchema[]>(() => {
       return tagSchema
     case 'icon':
       return iconSchema
+    case 'table':
+      return tableSchema
+    case 'carousel':
+      return carouselSchema
     default:
       return []
   }

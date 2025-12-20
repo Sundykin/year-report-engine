@@ -3,7 +3,7 @@
 ## 当前状态概览
 
 ### 已实现功能
-- 核心类型系统（text/image/shape/chart/video/richtext/button/icon/divider/progress/counter）
+- 核心类型系统（text/image/shape/chart/video/richtext/button/icon/divider/progress/counter/countdown/list/tag/table/carousel）
 - Vue3 设计器（组件面板、属性面板、画布编辑、动画配置、数据源管理）
 - 三端渲染器（Vue3/Vue2/React）
 - 动画系统（animate.css 预设 + anime.js 关键帧）
@@ -15,7 +15,10 @@
 - ✅ 复制粘贴增强（Ctrl+C/V/X，复制样式 Ctrl+Shift+C/V）
 - ✅ 对齐分布工具（多选对齐、等间距分布）
 - ✅ 图层面板（拖拽排序、可见性、锁定）
-- ✅ 新组件：按钮、图标、分割线、进度条、计数器
+- ✅ Schema Form 动态表单系统（所有组件属性面板统一配置化）
+- ✅ 新组件：按钮、图标、分割线、进度条、计数器、倒计时、列表、标签、表格、轮播图
+- ✅ 文本增强：文字描边、阴影、渐变填充
+- ✅ 图片增强：滤镜效果、蒙版形状、翻转
 
 ---
 
@@ -47,6 +50,51 @@
 
 ---
 
+## Phase 8: 动态表单属性面板（优先级：高）✅ 已完成
+
+> Schema Form 系统已实现，大幅简化组件属性面板开发
+
+### 8.1 基础架构 ✅
+- [x] 定义 FormSchema 类型系统（types.ts）
+- [x] 创建 SchemaForm.vue 动态表单组件
+- [x] 实现字段路径解析（支持 `style.color` 嵌套路径）
+- [x] 支持联动显示逻辑（showWhen）
+
+### 8.2 原子控件库 ✅
+- [x] NumberInput - 数值输入
+- [x] TextInput - 文本输入
+- [x] TextareaInput - 多行文本
+- [x] ColorPicker - 颜色选择
+- [x] SelectInput - 下拉选择
+- [x] CheckboxInput - 开关
+- [x] RangeSlider - 滑块
+- [x] ButtonGroup - 按钮组
+- [x] DatetimeInput - 日期时间
+- [x] FileUpload - 文件上传
+
+### 8.3 布局组件 ✅
+- [x] FormSection - 分组区域（带标题）
+- [x] 网格布局（grid 配置）
+- [x] 可折叠区域（collapsible）
+
+### 8.4 组件 Schema 配置 ✅
+已完成所有组件的 schema 迁移：
+- [x] common - 通用属性（位置、锁定）
+- [x] text - 文本组件
+- [x] richtext - 富文本组件
+- [x] image-video - 图片/视频组件
+- [x] shape - 形状组件
+- [x] chart - 图表组件
+- [x] icon - 图标组件
+- [x] progress - 进度条组件
+- [x] counter - 计数器组件
+- [x] countdown - 倒计时组件
+- [x] list - 列表组件
+- [x] tag - 标签组件
+- [x] style-effects - 样式效果
+
+---
+
 ## Phase 2: 组件库扩展（优先级：高）🚧 进行中
 
 > 参考：易企秀、MAKA、兔展、创客贴、Canva、稿定设计等商业化产品
@@ -68,7 +116,7 @@
 - [ ] 图片翻转（水平/垂直）
 
 **形状组件**
-- [ ] 更多预设形状（箭头/对话框/标注/徽章）
+- [x] 更多预设形状（箭头/对话框/标注/徽章）
 - [ ] 自定义路径绘制
 - [ ] 形状组合（布尔运算）
 - [ ] 渐变填充
@@ -94,7 +142,7 @@
 - [ ] 内边距配置
 - [ ] 子元素布局（自由/flex）
 
-### 2.3 数据展示组件 ✅ 部分完成
+### 2.3 数据展示组件 ✅ 大部分完成
 
 **进度条** `progress` ✅
 - [x] 条形进度条
@@ -109,9 +157,9 @@
 - [x] 小数位配置
 - [ ] 千分位格式化
 
-**倒计时** `countdown`
-- [ ] 天/时/分/秒显示
-- [ ] 自定义样式
+**倒计时** `countdown` ✅
+- [x] 天/时/分/秒显示
+- [x] 自定义格式
 - [ ] 结束回调
 
 **表格** `table`
@@ -120,13 +168,14 @@
 - [ ] 数据绑定
 - [ ] 滚动支持
 
-**列表** `list`
-- [ ] 有序/无序列表
-- [ ] 自定义图标
+**列表** `list` ✅
+- [x] 有序/无序列表
+- [x] 自定义图标颜色
 - [ ] 数据绑定循环
 
-**标签** `tag`
-- [ ] 多种颜色预设
+**标签** `tag` ✅
+- [x] 多种颜色预设
+- [x] 多种样式变体（实心/描边/浅色）
 - [ ] 可关闭标签
 - [ ] 标签组
 
@@ -367,193 +416,6 @@
 
 ---
 
-## Phase 8: 动态表单属性面板（优先级：高）
-
-### 背景与问题
-
-当前每新增一个组件，都需要创建对应的 `XxxProperties.vue` 属性面板组件，导致：
-- 代码量大幅增加（目前已有 12 个属性面板组件）
-- 重复代码多（样式、布局、表单控件）
-- 维护成本高
-- 新增组件开发效率低
-
-### 现有表单控件分析
-
-通过分析现有属性面板，总结出以下原子级表单控件：
-
-| 控件类型 | 用途 | 示例 |
-|---------|------|------|
-| `number` | 数值输入 | x, y, width, height, rotation, fontSize |
-| `text` | 文本输入 | content, tagText, counterPrefix |
-| `textarea` | 多行文本 | content, listItems |
-| `color` | 颜色选择 | color, backgroundColor, progressColor |
-| `select` | 下拉选择 | shapeType, progressType, listType |
-| `select-group` | 分组下拉 | shapeType (带 optgroup) |
-| `checkbox` | 开关 | locked, useGradient |
-| `range` | 滑块 | progressValue, filter values |
-| `button-group` | 按钮组切换 | backgroundType, renderMode |
-| `datetime` | 日期时间 | countdownTarget |
-| `code` | 代码编辑器 | renderFunction, transform |
-| `upload` | 文件上传 | src, backgroundImage |
-| `multi-select` | 多选下拉 | dataBinding.sourceIds |
-| `collapsible` | 可折叠区域 | 样式效果分组 |
-| `grid` | 网格布局 | 2列/3列/4列布局 |
-
-### 方案评估
-
-#### 方案一：自研轻量级 Schema 表单
-
-**优点：**
-- 完全可控，按需定制
-- 无外部依赖，体积小
-- 与现有代码风格一致
-
-**缺点：**
-- 开发工作量较大
-- 需要自行处理复杂场景
-
-**实现思路：**
-```typescript
-// 组件元信息定义
-interface ComponentMeta {
-  type: ElementType
-  name: string
-  icon: string
-  defaultProps: Partial<H5Element>
-  schema: FormSchema[]
-}
-
-interface FormSchema {
-  field: string           // 字段路径，如 'style.color'
-  label: string
-  type: 'number' | 'text' | 'color' | 'select' | ...
-  options?: { label: string; value: any }[]  // select 选项
-  min?: number
-  max?: number
-  step?: number
-  placeholder?: string
-  showWhen?: (element: H5Element) => boolean  // 条件显示
-  grid?: number           // 占用列数 (1-4)
-  group?: string          // 分组名称
-  collapsible?: boolean   // 是否可折叠
-}
-```
-
-#### 方案二：使用 FormCreate
-
-**优点：**
-- 功能完善，支持复杂表单
-- 社区活跃，文档齐全
-- 支持 Vue3
-
-**缺点：**
-- 引入额外依赖（~100KB）
-- 样式需要适配深色主题
-- 部分控件可能不符合需求
-
-**官网：** https://www.form-create.com/
-
-#### 方案三：使用 FormKit
-
-**优点：**
-- 现代化设计，Vue3 原生
-- Schema 驱动
-- 高度可定制
-
-**缺点：**
-- 学习成本
-- 需要自定义主题
-
-**官网：** https://formkit.com/
-
-#### 方案四：使用 VueFormulate / Vuelidate + 自定义
-
-**优点：**
-- 轻量级
-- 灵活组合
-
-**缺点：**
-- 需要较多自定义工作
-
-### 推荐方案：自研轻量级 Schema 表单
-
-考虑到：
-1. 项目已有明确的控件类型需求
-2. 需要深度定制深色主题
-3. 避免引入过多外部依赖
-4. 控件类型相对固定
-
-**建议采用自研方案**，实现步骤：
-
-### 实现计划
-
-#### 8.1 基础架构
-- [ ] 定义 FormSchema 类型系统
-- [ ] 创建 SchemaForm.vue 动态表单组件
-- [ ] 实现字段路径解析（支持 `style.color` 嵌套路径）
-
-#### 8.2 原子控件库
-- [ ] NumberInput - 数值输入
-- [ ] TextInput - 文本输入
-- [ ] TextareaInput - 多行文本
-- [ ] ColorPicker - 颜色选择
-- [ ] SelectInput - 下拉选择
-- [ ] CheckboxInput - 开关
-- [ ] RangeSlider - 滑块
-- [ ] ButtonGroup - 按钮组
-- [ ] DatetimeInput - 日期时间
-- [ ] CodeEditor - 代码编辑（复用现有）
-- [ ] FileUpload - 文件上传（复用现有）
-- [ ] MultiSelect - 多选
-
-#### 8.3 布局组件
-- [ ] FormSection - 分组区域（带标题）
-- [ ] FormGrid - 网格布局
-- [ ] FormCollapsible - 可折叠区域
-
-#### 8.4 组件元信息定义
-- [ ] 为每个组件类型定义 schema
-- [ ] 迁移现有属性面板到 schema 配置
-- [ ] 支持条件显示逻辑
-
-#### 8.5 高级功能
-- [ ] 自定义控件注册机制
-- [ ] 表单验证
-- [ ] 联动逻辑（字段间依赖）
-
-### 预期收益
-
-1. **代码量减少 60%+**：12 个属性面板 → 1 个动态表单 + schema 配置
-2. **新增组件效率提升**：只需定义 schema，无需写 Vue 组件
-3. **一致性保证**：所有控件样式统一
-4. **易于维护**：修改控件样式只需改一处
-
-### 示例 Schema 配置
-
-```typescript
-// 计数器组件 schema 示例
-const counterSchema: FormSchema[] = [
-  { field: 'counterValue', label: '目标值', type: 'number', grid: 2 },
-  { field: 'counterPrefix', label: '前缀', type: 'text', placeholder: '¥', grid: 1 },
-  { field: 'counterSuffix', label: '后缀', type: 'text', placeholder: '元', grid: 1 },
-  { field: 'counterDecimals', label: '小数位', type: 'number', min: 0, max: 4, grid: 1 },
-  { field: 'counterDuration', label: '动画时长(秒)', type: 'number', min: 0.5, max: 10, step: 0.5, grid: 1 },
-]
-
-// 标签组件 schema 示例
-const tagSchema: FormSchema[] = [
-  { field: 'tagText', label: '标签文字', type: 'text', placeholder: '标签' },
-  { field: 'tagColor', label: '颜色', type: 'color', grid: 1 },
-  { field: 'tagVariant', label: '样式', type: 'select', grid: 1, options: [
-    { label: '实心', value: 'solid' },
-    { label: '描边', value: 'outline' },
-    { label: '浅色', value: 'light' },
-  ]},
-]
-```
-
----
-
 ## 技术债务清理
 
 ### 代码质量
@@ -578,31 +440,51 @@ const tagSchema: FormSchema[] = [
 
 ## 建议开发顺序
 
-1. **立即开始**：撤销/重做系统、对齐分布工具
-2. **短期目标**：图层面板、文本增强、复制粘贴增强
-3. **中期目标**：新组件类型、动画编辑器优化、导出格式扩展
-4. **长期目标**：模板系统、协作功能
+### 当前优先（Phase 2 继续）
+1. **文本增强**：文字描边、阴影、渐变填充
+2. **图片增强**：裁剪、滤镜、蒙版
+3. **表格组件**：数据展示核心组件
+4. **轮播图组件**：交互组件
+
+### 短期目标（Phase 2.5 + Phase 3）
+1. **条件/循环渲染**：动态内容能力
+2. **事件系统**：交互动作
+3. **动画编辑器优化**：可视化时间轴
+
+### 中期目标（Phase 4 + Phase 5）
+1. **数据能力增强**
+2. **导出格式扩展**
+3. **发布功能**
+
+### 长期目标（Phase 6 + Phase 7）
+1. **用户体验优化**
+2. **模板与资源系统**
 
 ---
 
 ## 里程碑规划
 
-### v1.1 - 编辑体验优化
-- 撤销/重做
-- 对齐分布
-- 图层面板
-- 复制粘贴增强
+### v1.1 - 编辑体验优化 ✅
+- ✅ 撤销/重做
+- ✅ 对齐分布
+- ✅ 图层面板
+- ✅ 复制粘贴增强
+- ✅ Schema Form 动态表单
 
-### v1.2 - 组件能力扩展
-- 文本/图片增强
-- 进度条/计数器组件
-- 图表类型扩展
+### v1.2 - 组件能力扩展（当前版本）
+- ✅ 进度条/计数器/倒计时组件
+- ✅ 列表/标签组件
+- [ ] 文本/图片增强
+- [ ] 表格组件
+- [ ] 轮播图组件
 
-### v1.3 - 动画与数据
-- 动画编辑器升级
-- 数据绑定增强
-- 交互动画
+### v1.3 - 动画与交互
+- [ ] 条件/循环渲染
+- [ ] 事件系统
+- [ ] 动画编辑器升级
+- [ ] 交互动画
 
 ### v2.0 - 发布与协作
-- 多格式导出
-- 发布功能
+- [ ] 多格式导出
+- [ ] 发布功能
+- [ ] 模板系统
