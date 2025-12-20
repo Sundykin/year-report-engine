@@ -16,6 +16,8 @@ import CodeEditorInput from './CodeEditorInput.vue'
 import RichTextEditorInput from './RichTextEditorInput.vue'
 import MultiSelectInput from './MultiSelectInput.vue'
 import FileUploadInput from './FileUploadInput.vue'
+import ConditionRulesField from './ConditionRulesField.vue'
+import EventListField from './EventListField.vue'
 
 // 注册所有内置控件
 export function registerBuiltinFields() {
@@ -32,6 +34,8 @@ export function registerBuiltinFields() {
   registerBuiltinField('richtext-editor', RichTextEditorInput)
   registerBuiltinField('multi-select', MultiSelectInput)
   registerBuiltinField('file-upload', FileUploadInput)
+  registerBuiltinField('condition-rules', ConditionRulesField)
+  registerBuiltinField('event-list', EventListField)
 }
 
 // 导出所有控件组件
@@ -48,5 +52,7 @@ export {
   CodeEditorInput,
   RichTextEditorInput,
   MultiSelectInput,
-  FileUploadInput
+  FileUploadInput,
+  ConditionRulesField,
+  EventListField
 }

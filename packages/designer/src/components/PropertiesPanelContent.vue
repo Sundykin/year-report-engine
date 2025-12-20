@@ -101,6 +101,37 @@
       :disabled="selectedElement.locked"
     />
 
+    <!-- 状态切换样式 -->
+    <SchemaForm
+      v-if="showStateStyle"
+      :model-value="selectedElement"
+      :schema="stateStyleSchema"
+      :disabled="selectedElement.locked"
+    />
+
+    <!-- 条件渲染（有数据源时显示） -->
+    <SchemaForm
+      v-if="conditionSchema.length > 0"
+      :model-value="selectedElement"
+      :schema="conditionSchema"
+      :disabled="selectedElement.locked"
+    />
+
+    <!-- 循环渲染（有数据源时显示） -->
+    <SchemaForm
+      v-if="loopSchema.length > 0"
+      :model-value="selectedElement"
+      :schema="loopSchema"
+      :disabled="selectedElement.locked"
+    />
+
+    <!-- 交互事件 -->
+    <SchemaForm
+      :model-value="selectedElement"
+      :schema="eventSchema"
+      :disabled="selectedElement.locked"
+    />
+
     <button @click="$emit('delete-element')" class="deleteBtn" :disabled="selectedElement.locked">🗑️ 删除组件</button>
   </template>
 </template>
@@ -127,7 +158,11 @@ import {
   createChartSchema,
   styleEffectsSchema,
   tableSchema,
-  carouselSchema
+  carouselSchema,
+  createConditionSchema,
+  createEventSchema,
+  stateStyleSchema,
+  createLoopSchema
 } from './schema-form/schemas'
 import type { FormSchema } from './schema-form/types'
 
@@ -173,6 +208,13 @@ const showStyleEffects = computed(() => {
   return ['text', 'richtext', 'image', 'video', 'shape', 'button'].includes(props.selectedElement.type)
 })
 
+// 是否显示状态切换样式
+const showStateStyle = computed(() => {
+  if (!props.selectedElement) return false
+  // 大部分可交互组件都支持状态样式
+  return ['text', 'richtext', 'image', 'video', 'shape', 'button', 'icon', 'tag'].includes(props.selectedElement.type)
+})
+
 // 根据组件类型获取对应的 schema
 const componentSchema = computed<FormSchema[]>(() => {
   if (!props.selectedElement) return []
@@ -211,6 +253,28 @@ const componentSchema = computed<FormSchema[]>(() => {
     default:
       return []
   }
+})
+
+// 条件渲染 Schema
+const conditionSchema = computed<FormSchema[]>(() => {
+  const dataSources = props.project.dataSources || []
+  return createConditionSchema(dataSources)
+})
+
+// 循环渲染 Schema
+const loopSchema = computed<FormSchema[]>(() => {
+  const dataSources = props.project.dataSources || []
+  return createLoopSchema(dataSources)
+})
+
+// 事件配置 Schema
+const eventSchema = computed<FormSchema[]>(() => {
+  const pages = props.project.pages.map(p => ({ id: p.id, name: p.name || `页面${p.id.slice(-4)}` }))
+  const elements = props.activePage.elements.map(el => ({
+    id: el.id,
+    name: el.name || `${el.type}-${el.id.slice(-4)}`
+  }))
+  return createEventSchema(pages, elements)
 })
 
 // 处理背景类型切换

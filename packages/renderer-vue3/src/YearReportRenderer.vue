@@ -37,9 +37,9 @@
             playsinline
           />
 
-          <!-- 非分组元素 -->
+          <!-- 非分组元素（支持循环渲染） -->
           <ElementRenderer
-            v-for="el in getUngroupedElements(page)"
+            v-for="el in expandLoopElements(getUngroupedElements(page))"
             :key="el.id"
             :element="el"
             :page-index="index"
@@ -78,7 +78,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, provide, watch, nextTick } from 'vue'
 import type { ProjectData, RequestAdapter, H5Element, H5Page } from '@year-report/core'
-import { DataSourceManager, AnimateCssScheduler } from '@year-report/core'
+import { DataSourceManager, AnimateCssScheduler, evaluateLoop, replaceLoopVariables } from '@year-report/core'
 import { ElementRenderer } from './elements'
 import GroupRenderer from './GroupRenderer.vue'
 import 'animate.css'
@@ -133,6 +133,48 @@ const props = defineProps<Props>()
 const dataManager = new DataSourceManager(props.requestAdapter)
 const dataVersion = ref(0)
 
+// 展开循环元素（响应式）
+function expandLoopElements(elements: H5Element[]): H5Element[] {
+  // 触发响应式更新
+  void dataVersion.value
+
+  const result: H5Element[] = []
+  const dataCache = dataManager.getDataCache()
+
+  for (const el of elements) {
+    if (el.loopConfig?.enabled) {
+      const loopResult = evaluateLoop(el, dataCache)
+      if (loopResult && !loopResult.isEmpty) {
+        // 展开循环生成的元素，替换内容中的变量
+        for (const item of loopResult.items) {
+          const clonedEl = { ...item.element }
+          // 替换文本内容中的循环变量
+          if (clonedEl.content) {
+            clonedEl.content = replaceLoopVariables(clonedEl.content, item.data, item.index)
+          }
+          // 替换图片 src 中的循环变量
+          if (clonedEl.src) {
+            clonedEl.src = replaceLoopVariables(clonedEl.src, item.data, item.index)
+          }
+          result.push(clonedEl)
+        }
+      } else if (loopResult?.isEmpty && el.loopConfig.emptyText) {
+        // 显示空数据提示
+        result.push({
+          ...el,
+          id: `${el.id}-empty`,
+          type: 'text',
+          content: el.loopConfig.emptyText,
+          loopConfig: undefined
+        })
+      }
+    } else {
+      result.push(el)
+    }
+  }
+  return result
+}
+
 // 动画编排器（每个页面一个）
 const pageSchedulers = ref<Map<number, AnimateCssScheduler>>(new Map())
 
@@ -140,6 +182,15 @@ const pageSchedulers = ref<Map<number, AnimateCssScheduler>>(new Map())
 provide('dataManager', dataManager)
 provide('dataVersion', dataVersion)
 provide('pageSchedulers', pageSchedulers)
+
+// 跳转到指定页面
+const goToPage = (pageId: string) => {
+  const index = props.data.pages.findIndex(p => p.id === pageId)
+  if (index >= 0) {
+    currentIndex.value = index
+  }
+}
+provide('goToPage', goToPage)
 
 const currentIndex = ref(0)
 const prevIndex = ref(-1)
